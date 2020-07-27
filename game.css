@@ -1,85 +1,152 @@
-html{
-	background-color:darksalmon;
-	/*height:700px;*/
-}
-body{
-	background-color:cornflowerblue;
-	/*height:700px;*/
-}
-/*Surrounds the Game, debug, and modifiers*/
-#gameAndControls{
-	background-color:lightblue;
-	padding:0px;
-	margin:auto;
-	height:100%
+body {
+    background-color: darkkhaki;
+    background-color: black;
+    color: darkgoldenrod;
 }
 
-	#game{
-		background-color:lightgreen;
-		display:inline-block;
-		vertical-align:top;
-		padding:0px;
-	}
-
-		#scores{
-			min-height:1em;
-			text-align:center;
-			font-weight:bold;
-		}
-			#p1Score{
-				background-color:red;
-				/*display:inline-block; */
-				float:left;
-				width:50%;
-				text-align:center;
-			}
-			#p2Score{
-				background-color:yellowgreen;
-				/*display:inline-block; */
-				float:right;
-				width:50%;
-				text-align:center;
-			}
-		#mainGameCanvas {
-			display: block;
-		}
-		#gametitle{
-			min-height:1em;
-			text-align:center;
-			font-weight:bold;
-		}
-
-	#modifiers{
-		background-color:lightyellow;
-		display:inline-block;
-		vertical-align:top;
-		padding:0px;
-	}
-	#debug{
-		background-color:lightyellow;
-		display:inline-block;
-		vertical-align:top;
-		padding:0px;
-		font-size:80%;
-	}
-
-#div_controls{
-background-color:darkkhaki;
-min-height:5em;
-display:inline-block;
-vertical-align:top;
+#gameAndControls {
+    padding: 0px;
+    margin: auto;
+    height: 100%;
 }
 
-#img_points{
-background-color:darkkhaki;
-min-height:5em;
-display:inline-block;
-vertical-align:top;
+#game {
+    background-color: black;
+    display: inline-block;
+    vertical-align: top;
+    padding: 3px;
+    border: 1px solid lightslategray;
+    text-align: left;
+    width: 555px;
 }
 
-#instructions{
-background-color:darkkhaki;
-min-height:5em;
-/*display:inline-block;*/
-vertical-align:top;
+div#sideDiv {
+    display: inline-block;
+	text-align: left;
+	background-color: dimgray;
+	color:black;
 }
+
+#sideDiv.hidden {
+    display: none;
+}
+
+#scores {
+    min-height: 1em;
+    text-align: center;
+    font-weight: bold;
+    margin-top: 5px;
+    border: 1px solid lightslategray;
+}
+
+#p1Score {
+    display: inline-block;
+    width: 225px;
+    text-align: center;
+}
+
+#p2Score {
+    display: inline-block;
+    width: 225px;
+    text-align: center;
+}
+
+#p1Accurracy {
+    display: inline-block;
+    width: 225px;
+    text-align: center;
+}
+
+#p2Accurracy {
+    display: inline-block;
+    width: 225px;
+    text-align: center;
+}
+
+#mainGameCanvas {
+    display: block;
+    border: 1px solid lightslategray;
+    margin: auto;
+    margin-top: 5px;
+}
+
+#gametitle {
+    min-height: 1em;
+    text-align: center;
+    font-weight: bold;
+    font-size: 40px;
+}
+
+#modifiers {
+	display: inline-block;
+    vertical-align: top;
+    padding: 0px;
+    height: 800px;
+    width: 200px;
+}
+#modifiers input[type='button'] {
+	width: 90%;
+	margin: 2px;
+	border: 2px solid black;
+}
+
+#debug {
+    display: inline-block;
+    vertical-align: top;
+    padding: 0px;
+    font-size: 80%;
+    width: 430px;
+}
+
+#div_controls {
+    min-height: 5em;
+    padding-top: 12px;
+    font-family: monospace;
+    font-size: 11px;
+    white-space: pre;
+}
+
+#img_points {
+    min-height: 5em;
+    display: inline-block;
+    vertical-align: top;
+    background-image: url('images/space_invaders02.png');
+    width: 260px;
+    height: 200px;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+}
+
+#instructions {
+    white-space: normal;
+}
+
+.debugTable1 {
+    font-size: 12px;
+    display: inline-block;
+    border: 1px solid black;
+    margin: 2px;
+    background-color: #d8d8b6;
+    vertical-align: top;
+    color: black;
+}
+.debugTable1 caption{font-weight: bold;text-decoration: underline;background-color: #8c8c5b;/* border: 1px solid black; */display: inline-block;text-align: center;}
+.textCenter {
+    text-align: center;
+}
+
+#infodiv {
+    margin-top: 5px;
+    border: 1px solid lightslategray;
+}
+
+.centerMain {
+    text-align: center;
+}
+
+div#infodivText {
+    display: inline-block;
+    vertical-align: top;
+}
+
+/* .debugDiv_container{background-color: dimgray;} */
