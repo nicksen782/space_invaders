@@ -1,0 +1,96 @@
+SPACE INVADERS!
+
+V1
+Alien Actions:
+ X With this version I am going to try to get some Alien Ships to move across the screen.
+ X Initially, the invaders will only shoot by user action (spacebar.)
+ X Allow Alien Ships to shoot on their own.
+
+Player Actions:
+ X The players will be able to move left and right and be able to shoot.
+
+Collision:
+ X Check for collision with player shots and Alien Ships.
+	Check for collision with enemy Alien Ships and the Players.
+	Simple temporary graphical indication of a projectile collision.
+
+Stats:
+ X Keep count of each player's shots made and shots fired.
+ X Differentiate enemy shots vs player shots.
+ X Keep count of when each player is hit by and enemy projectile.
+
+Game Modifiers:
+ X Game reset
+ X Player left/right movement, player shoot
+ X Frames Per Second live adjustment
+ X Add Random Alien Ship
+ X Remove All Alien Ships
+ X Show debugging information
+
+Other Game Elements:
+ X Randomize alien ship at top of screen.
+
+V2
+
+Game Framework:
+	Fix Player Object and all related code that calls it to use pos, and size like Projectiles and Alienships do.
+
+Player Actions:
+	X Restrict fired shots per second.
+
+Alien Actions:
+
+Other Game Elements:
+	Add protective barriers to block shots.
+
+Other Game Elements:
+	Alien Ship to appear as a timed event also based on number of Player shots.
+	Sounds: Player shots, enemy shots, enemy movement, alien ship, player hit, alien hit, alien ship hit.
+
+V3
+
+
+
+Constants:
+	Canvas width
+	Canvas height.
+	Named constants for keyboard controls.
+
+Game elements
+	Canvas
+	Context
+	Keystate
+
+	Score
+	Shots fired
+
+
+http://spaceinvaders.wikia.com/wiki/Space_Invaders_(Atari_2600)
+
+Moving Shields--shields move back and forth
+Zigzagging Laser Bombs--Invaders' shots zigzag back and forth towards the earth
+Fast Laser Bombs--Invaders' Bombs drop quickly
+Invisible Invaders--Invaders are invisible unless one (or the Command Alien Ship) is shot, which they then briefly reappear
+Large laser cannon--flipping a difficulty switch on the 2600 console to the A position makes players' laser cannons twice as large
+
+Row 1 Invader--5 points
+Row 2 Invader--10 points
+Row 3 Invader--15 points
+Row 4 Invader--20 points
+Row 5 Invader--25 points
+Row 6 Invader--30 points
+Command Alien Ship--200 points, or 100 points in certain game variations
+
+Alien Object
+
+Alien Ship Object
+
+Projectile Object
+	updatePosition
+	collisionCheck
+	draw
+
+Player Object
+	fire
+	updatePosition
+	draw

@@ -1,0 +1,85 @@
+html{
+	background-color:darksalmon;
+	/*height:700px;*/
+}
+body{
+	background-color:cornflowerblue;
+	/*height:700px;*/
+}
+/*Surrounds the Game, debug, and modifiers*/
+#gameAndControls{
+	background-color:lightblue;
+	padding:0px;
+	margin:auto;
+	height:100%
+}
+
+	#game{
+		background-color:lightgreen;
+		display:inline-block;
+		vertical-align:top;
+		padding:0px;
+	}
+
+		#scores{
+			min-height:1em;
+			text-align:center;
+			font-weight:bold;
+		}
+			#p1Score{
+				background-color:red;
+				/*display:inline-block; */
+				float:left;
+				width:50%;
+				text-align:center;
+			}
+			#p2Score{
+				background-color:yellowgreen;
+				/*display:inline-block; */
+				float:right;
+				width:50%;
+				text-align:center;
+			}
+		#mainGameCanvas {
+			display: block;
+		}
+		#gametitle{
+			min-height:1em;
+			text-align:center;
+			font-weight:bold;
+		}
+
+	#modifiers{
+		background-color:lightyellow;
+		display:inline-block;
+		vertical-align:top;
+		padding:0px;
+	}
+	#debug{
+		background-color:lightyellow;
+		display:inline-block;
+		vertical-align:top;
+		padding:0px;
+		font-size:80%;
+	}
+
+#div_controls{
+background-color:darkkhaki;
+min-height:5em;
+display:inline-block;
+vertical-align:top;
+}
+
+#img_points{
+background-color:darkkhaki;
+min-height:5em;
+display:inline-block;
+vertical-align:top;
+}
+
+#instructions{
+background-color:darkkhaki;
+min-height:5em;
+/*display:inline-block;*/
+vertical-align:top;
+}

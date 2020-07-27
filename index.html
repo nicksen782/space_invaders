@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<!--https://github.com/maxwihlborg/youtube-tutorials/blob/master/pong/index.html-->
+	<meta charset="UTF-8">
+	<title>Space Invaders v1</title>
+
+	<!-- Basic styling, centering the canvas -->
+	<link rel="stylesheet" type="text/css" href="game.css">
+</head>
+
+<body>
+	<!--Game, modifiers, debug stats-->
+	<div id="gameAndControls">
+		<div id="game">
+			<div id="scores">
+				<div id="p1Score">Accuracy: 40/97</div><div id="p2Score">Score: 65780</div>
+			</div>
+
+			<!--This is where the game display is..-->
+			<canvas id="mainGameCanvas"></canvas>
+
+			<div id="gametitle">
+				Space Invaders!
+			</div>
+		</div>
+
+		<div id="modifiers">
+			<div>
+				<b>Game Modifiers:</b><br>
+				<div style="padding-left:1em;">
+					<input id="newgame" type="button" value="RESET">
+					New Game (reset all values and positions)
+					<br>
+
+					<input type="button" id="pause" value="PAUSE">
+					Pause Game(toggle)
+					<br>
+
+					<input type="button" id="upFPS" value="upFPS">
+					Raise FPS
+					<br>
+
+					<input type="button" id="dnFPS" value="dnFPS">
+					Lower FPS
+					<br>
+
+					<input type="button" value="R+=5" onclick="R+=5; UTILITYFUNCTIONS.removeAllAlienShips(); UTILITYFUNCTIONS.addRandomAlienShip();">
+					R+=5
+					<br>
+
+					<input type="button" value="R-=5" onclick="R-=5; UTILITYFUNCTIONS.removeAllAlienShips(); UTILITYFUNCTIONS.addRandomAlienShip();">
+					R-=5
+					<br>
+
+					<input type="button" id="addAS" value="ADD AS">
+					Add Random Alien Ship
+					<br>
+
+					<input type="button" id="removeAllAS" value="REMOVE">
+					Remove All Alien Ships
+					<br>
+
+					<br>
+
+					<input id="chk_debug" type="checkbox" checked>
+					Show debugging information.
+					<br>
+
+				</div>
+			</div>
+		</div>
+
+		<div id="debug">
+			<div>
+				<b>Game Elements/Stats (live):</b><br>
+				<div style="padding-left:1em;">
+					<!--The text in this div is output by Javascript.-->
+					<div id="debug_details">
+						Details are added here upon each drawn frame.<br>
+						Check the debugging checkbox to activate this feature.
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!--Information-->
+	<div>
+		<div id="img_points">
+			<img src="images/space_invaders01.jpg">
+		</div>
+
+		<!--The text in this div is output by Javascript.-->
+		<div id="div_controls"></div>
+
+		<div id="instructions">
+			<b>Instructions:</b><br>
+				<div style="padding-left:1em;">
+					<br>
+					<br>
+					<br>
+				</div>
+			</div>
+		</div>
+
+	</div>
+
+	<script type="text/javascript" src="game.js"></script>
+
+
+</body>
+
+</html>
