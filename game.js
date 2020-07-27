@@ -20,11 +20,303 @@ var KEYBOARD_CONTROLS = {
 	},
 	"AI":
 	{
-		"FIRE"  : { "CODE" : 17, "NAME" : "Control Key", "PURPOSE" : "All Alien Ships FIRE"},
+		"FIRE"  : { "CODE" : 17, "NAME" : "Control Key", "PURPOSE" : "All Alien Invaders FIRE"},
 	}
 
 };
-var PLAYERSIZE_SMALL = { "W" : 30, "H" : 10 };
+// Holds the sprite sheet image.
+var ship = new Image();
+ship.src = 'images/invaders_1_.png';
+// Holds the positions and dimensions of each sprite.
+var spriteSheet = {
+	"alienInvaders": {
+		"type00": {
+			"name": "",
+			"frame1": {
+				"x": "3",
+				"y": "253",
+				"w": "102",
+				"h": "82"
+			},
+			"frame2": {
+				"x": "94",
+				"y": "253",
+				"w": "102",
+				"h": "82"
+			}
+		},
+		"type01": {
+			"name": "",
+			"frame1": {
+				"x": "302",
+				"y": "13",
+				"w": "102",
+				"h": "82"
+			},
+			"frame2": {
+				"x": "417",
+				"y": "13",
+				"w": "102",
+				"h": "82"
+			}
+		},
+		"type02": {
+			"name": "",
+			"frame1": {
+				"x": "260",
+				"y": "373",
+				"w": "102",
+				"h": "82"
+			},
+			"frame2": {
+				"x": "367",
+				"y": "373",
+				"w": "102",
+				"h": "82"
+			}
+		},
+		"type03": {
+			"name": "",
+			"frame1": {
+				"x": "226",
+				"y": "493",
+				"w": "102",
+				"h": "82"
+			},
+			"frame2": {
+				"x": "336",
+				"y": "493",
+				"w": "102",
+				"h": "82"
+			}
+		},
+		"type04": {
+			"name": "",
+			"frame1": {
+				"x": "194",
+				"y": "253",
+				"w": "102",
+				"h": "82"
+			},
+			"frame2": {
+				"x": "305",
+				"y": "253",
+				"w": "102",
+				"h": "82"
+			}
+		},
+		"type05": {
+			"name": "",
+			"frame1": {
+				"x": "18",
+				"y": "373",
+				"w": "102",
+				"h": "82"
+			},
+			"frame2": {
+				"x": "144",
+				"y": "373",
+				"w": "102",
+				"h": "82"
+			}
+		},
+		"type06": {
+			"name": "",
+			"frame1": {
+				"x": "299",
+				"y": "133",
+				"w": "102",
+				"h": "82"
+			},
+			"frame2": {
+				"x": "299",
+				"y": "133",
+				"w": "102",
+				"h": "82"
+			}
+		},
+		"type07": {
+			"name": "",
+			"frame1": {
+				"x": "4",
+				"y": "503",
+				"w": "102",
+				"h": "82"
+			},
+			"frame2": {
+				"x": "114",
+				"y": "503",
+				"w": "102",
+				"h": "82"
+			}
+		},
+		"type08": {
+			"frame1": {
+				"name": "TITLE SCREEN",
+				"x": "18",
+				"y": "13",
+				"w": "112",
+				"h": "82"
+			},
+			"frame2": {
+				"x": "164",
+				"y": "13",
+				"w": "112",
+				"h": "82"
+			}
+		},
+		"type09": {
+			"name": "TITLE SCREEN",
+			"frame1": {
+				"x": "18",
+				"y": "133",
+				"w": "122",
+				"h": "82"
+			},
+			"frame2": {
+				"x": "159",
+				"y": "133",
+				"w": "122",
+				"h": "82"
+			}
+		}
+	},
+	"alienShips": {
+		"ship1": {
+			"frame1": {
+				"h": "59",
+				"w": "125",
+				"x": "19",
+				"y": "634"
+			},
+			"frame2": {
+				"h": "59",
+				"w": "125",
+				"x": "19",
+				"y": "634"
+			}
+		}
+	},
+	"players": {
+		"P1": {
+			"frame1": {
+				"x": "149",
+				"y": "637",
+				"w": "75",
+				"h": "54"
+			},
+			"frame2": {
+				"w": "75",
+				"h": "54",
+				"x": "149",
+				"y": "637"
+			}
+		},
+		"P2": {
+			"frame1": {
+				"x": "149",
+				"y": "637",
+				"w": "75",
+				"h": "54"
+			},
+			"frame2": {
+				"w": "75",
+				"h": "54",
+				"x": "149",
+				"y": "637"
+			}
+		}
+	},
+	"misc": {
+		"barrier1": {
+			"frame1": {
+				"x": "416",
+				"y": "269",
+				"w": "54",
+				"h": "75"
+			},
+			"frame2": {
+				"x": "491",
+				"y": "270",
+				"w": "54",
+				"h": "75"
+			}
+		},
+		"barrier2": {
+			"frame1": {
+				"x": "486",
+				"y": "393",
+				"w": "30",
+				"h": "53"
+			},
+			"frame2": {
+				"x": "486",
+				"y": "393",
+				"w": "30",
+				"h": "53"
+			}
+		},
+		"shot1": {
+			"frame1": {
+				"x": "486",
+				"y": "393",
+				"w": "30",
+				"h": "53"
+			},
+			"frame2": {
+				"x": "486",
+				"y": "393",
+				"w": "30",
+				"h": "53"
+			}
+		},
+		"shot2": {
+			"frame1": {
+				"x": "486",
+				"y": "393",
+				"w": "30",
+				"h": "53"
+			},
+			"frame2": {
+				"x": "486",
+				"y": "393",
+				"w": "30",
+				"h": "53"
+			}
+		},
+		"hit1": {
+			"frame1": {
+				"x": "240",
+				"y": "633",
+				"w": "107",
+				"h": "63"
+			},
+			"frame2": {
+				"x": "240",
+				"y": "633",
+				"w": "107",
+				"h": "63"
+			}
+		},
+		"hit2": {
+			"frame2": {
+				"x": "354",
+				"y": "630",
+				"w": "107",
+				"h": "62"
+			},
+			"frame1": {
+				"h": "62",
+				"w": "107",
+				"y": "630",
+				"x": "354"
+			}
+		}
+	}
+};
+
+
+var PLAYERSIZE_SMALL = { "W" : 50, "H" : 25 };
 var PLAYERSIZE_LARGE = { "W" : 60, "H" : 20 };
 
 // CANVAS dimensions.
@@ -121,8 +413,8 @@ var UTILITYFUNCTIONS = {
 
 			// Add the new projectile into the game.
 			var newProjectile = {
-				"pos"		: { "x" : thisPlayer.x+thisPlayer.width/2-3, "y" : thisPlayer.y+thisPlayer.height },
-				"size"		: { "w" : 3, "h" : 15 },
+				"pos"		: { "x" : thisPlayer.x+thisPlayer.width/2-3, "y" : thisPlayer.y-thisPlayer.height/2-3 },
+				"size"		: { "w" : 15, "h" : 20 },
 				"velocityy"	: 15  + Math.floor((Math.random() * 5) + 0),
 				"color" 	: color,
 				"origin"	: origin
@@ -199,8 +491,10 @@ var UTILITYFUNCTIONS = {
 
 		// Size
 		var size = {
-			"w": Math.floor((Math.random() * 40) + 30),
-			"h": Math.floor((Math.random() * 12) + 8)
+			// "w": Math.floor((Math.random() * 40) + 30),
+			// "h": Math.floor((Math.random() * 12) + 8)
+			"w": "50",
+			"h": "20"
 		};
 
 		// Position.
@@ -222,14 +516,14 @@ var UTILITYFUNCTIONS = {
 		pos.y = Math.max(1, Math.min(pos.y, maxY));
 
 		// Velocity
-		var velocityx = Math.floor(Math.random()*15) + 10;
+		var velocityx = Math.floor(Math.random()*10) + 5;
 		if     (random5050==0){ velocityx *= 1; }			// If on the left side then make it go RIGHT (Positive).
 		else if(random5050==1){ velocityx *= -1; }			// If on the left side then make it go RIGHT (Positive).
 		velocityx *= Math.floor(Math.random()*1) == 1 ? 1 : -1; // Make it negative 50% of the time.
 
 		// Color
 		var color_index	= Math.floor((Math.random() * 5) + 0) ;
-		var colors = ["yellow", "green", "blue", "purple", "white", "brown"];
+		var colors = ["red", "green", "blue", "purple", "darkgray", "brown"];
 		var color = colors[color_index];
 		var type		= Math.floor((Math.random() * 4) + 0) ;
 
@@ -268,7 +562,9 @@ var UTILITYFUNCTIONS = {
 				function(){
 					// FIRE!
 					try{ ALIENSHIPS[whichShip].fire(); }
-					catch(err){ console.log("Ship: '"+whichShip+"' was removed before it could fire.", err);}
+					catch(err){
+						// console.log("Ship: '"+whichShip+"' was removed before it could fire.", err);
+					}
 
 					// Decrement from the queue counter.
 					PROJECTILES_QUEUE_AS--;
@@ -298,7 +594,7 @@ var UTILITYFUNCTIONS = {
 		// All Alien Invaders move down on the Y axis in unison also.
 
 		// var color = [ "#458ade", "#c71bba", "#3d7b8e", "#63b389", "#e6bc78", "#f31a0e" ];
-		var color = [ "red", "purple", "orange", "green", "yellow", "blue" ];
+		var color = [ "red", "purple", "orange", "green", "violet", "blue" ];
 		var type = [ 0, 1, 2, 3, 4, 5 ];
 		var size = 40;
 		var Y;//=100;
@@ -312,9 +608,9 @@ var UTILITYFUNCTIONS = {
 				UTILITYFUNCTIONS.addAlienInvader( {
 					"pos"		: { "x" : X+col*3*(size/3), "y" : Y+row*(size/3) },
 					"size"		: { "w" : size, "h" : size },
-					"velocityx"	: 5,
+					"velocityx"	: 15,
 					"color"		: color[row-1],
-					"type"		: type[col-1]
+					"type"		: type[row-1]
 				});
 			}
 
@@ -332,40 +628,67 @@ var UTILITYFUNCTIONS = {
 
 		// Do this for each Alien Invader in the grid.
 		for(var i=0; i<ALIENINVADERS.length; i++){
-			// LEFT BOUNDRY
-			if ( ALIENINVADERS[i].pos.x <= 0 ) {
-				// console.log("Bounce! About to to RIGHT!");
-				changeDirections = "R";
-				break;
-			}
+			// SIDE BOUNDRY
+			if ( ALIENINVADERS[i].pos.x <= 0
+			   || ALIENINVADERS[i].pos.x + ALIENINVADERS[i].size.w >= WIDTH ) {
+				// console.log("Bounce");
 
-			// RIGHT BOUNDRY
-			if (ALIENINVADERS[i].pos.x + ALIENINVADERS[i].size.w >= WIDTH ){
-				// console.log("Bounce! About to to LEFT!");
-				changeDirections = "L";
+				// This Alien Invader hit a boundry. Which one did it hit or which direction was it moving?
+				for(i=0; i<ALIENINVADERS.length; i++){
+					ALIENINVADERS[i].velocityx *= -1 ;
+					// Also, move the invader down on the Y.
+					ALIENINVADERS[i].pos.y += 5 ;
+				}
+				for(i=0; i<ALIENINVADERS.length; i++){
+					// Check if an invader reaches the bottom.
+					// if(ALIENINVADERS[i].pos.y >= HEIGHT-ALIENINVADERS[i].size.h*2) {
+					if(ALIENINVADERS[i].pos.y >= 410) {
+						// ALIENINVADERS[i].pos.y = 100;
+						// Erase all Alien Invaders.
+						UTILITYFUNCTIONS.eraseAlienInvader_grid();
+						// Redraw the Alien Invader grid.
+						UTILITYFUNCTIONS.createAlienInvadersGrid();
+						return;
+					}
+				}
+				// console.log("breaking!");
 				break;
 			}
 		}
-			// This Alien Invader hit a boundry. Which one did it hit or which direction was it moving?
-			if(changeDirections){
-				for(i=0; i<ALIENINVADERS.length; i++){
-					ALIENINVADERS[i].velocityx *= -1 ;
-				}
-			}
 
-			// Always do this.
-			for(i=0; i<ALIENINVADERS.length; i++){
+		// Always do this.
+		for(i=0; i<ALIENINVADERS.length; i++){
+
+			// Change the frame if enough frames have passed by.
+			if(ALIENINVADERS[i].frameslatency >= ALIENINVADERS[i].frameslatencymax){
+				if     (ALIENINVADERS[i].framenum=="frame2"){ ALIENINVADERS[i].framenum="frame1"; }
+				else if(ALIENINVADERS[i].framenum=="frame1"){ ALIENINVADERS[i].framenum="frame2"; }
+				else                                        { ALIENINVADERS[i].framenum="frame1"; }
+				ALIENINVADERS[i].frameslatency=0;
+
 				// Move the Alien Invader on the X axis.
 				ALIENINVADERS[i].pos.x += ALIENINVADERS[i].velocityx;
 
-				// Bounce the Alien Invader on the Y axis.
-				if     (ALIENINVADERS[i].jumpingY == 0){ ALIENINVADERS[i].pos.y += -2; }
-				else if(ALIENINVADERS[i].jumpingY == 1){ ALIENINVADERS[i].pos.y += 2; }
-				ALIENINVADERS[i].jumpingY = ! ALIENINVADERS[i].jumpingY ;
-
 				// Make sure that the new x and y are valid and the Alien Invader cannot go out of bounds.
-				ALIENINVADERS[i].pos.x = Math.max(0, Math.min(ALIENINVADERS[i].pos.x, WIDTH));
+				ALIENINVADERS[i].pos.x = Math.max( 0, Math.min(ALIENINVADERS[i].pos.x, WIDTH - ALIENINVADERS[i].size.w) );
+
+				// Bounce the Alien Invader on the Y axis.
+				if     (ALIENINVADERS[i].jumpingY == 0){ ALIENINVADERS[i].pos.y += -4; }
+				else if(ALIENINVADERS[i].jumpingY == 1){ ALIENINVADERS[i].pos.y +=  4; }
+				ALIENINVADERS[i].jumpingY = ! ALIENINVADERS[i].jumpingY ;
 			}
+
+			if(ALIENINVADERS[i].frameslatency < ALIENINVADERS[i].frameslatencymax){
+				ALIENINVADERS[i].frameslatency++;
+			}
+			else {
+				// ALIENINVADERS[i].frameslatency++;
+
+			}
+
+
+
+		}
 	},
 	randomAlienInvader_FIRE : function(){
 		// Limit the number of projectiles from the Alien Invaders that are active on the field.
@@ -391,7 +714,9 @@ var UTILITYFUNCTIONS = {
 				function(){
 					// FIRE!
 					try{ ALIENINVADERS[whichShip].fire(); }
-					catch(err){ console.log("Ship: '"+whichShip+"' was removed before it could fire.", err);}
+					catch(err){
+						// console.log("Ship: '"+whichShip+"' was removed before it could fire.", err);
+					}
 
 					// Decrement from the queue counter.
 					PROJECTILES_QUEUE_AI--;
@@ -399,6 +724,9 @@ var UTILITYFUNCTIONS = {
 			);
 		}
 		// else { console.log(PROJECTILES.length, " is too many projectiles right now."); }
+	},
+	eraseAlienInvader_grid : function(){
+		ALIENINVADERS = [];
 	},
 
 	// User Interface (keyboard/mouse)
@@ -476,7 +804,7 @@ function init(){
 
 	// Create Player 1.
 	newPlayer = {
-		"pos"		: { "x" : WIDTH-WIDTH/4 - PLAYERSIZE_SMALL.W, "y" : HEIGHT - PLAYERSIZE_SMALL.H-PLAYERSIZE_SMALL.H },
+		"pos"		: { "x" : WIDTH-WIDTH/4 - PLAYERSIZE_SMALL.W, "y" : HEIGHT - PLAYERSIZE_SMALL.H },
 		"size"		: { "w" : PLAYERSIZE_SMALL.W, "h" : PLAYERSIZE_SMALL.H },
 		"control"	: "H",
 		"color"		: "red",
@@ -486,7 +814,7 @@ function init(){
 
 	// Create Player 2.
 	var newPlayer = {
-		"pos"		: { "x" : WIDTH/4 - PLAYERSIZE_SMALL.W, "y" : HEIGHT - PLAYERSIZE_SMALL.H-PLAYERSIZE_SMALL.H },
+		"pos"		: { "x" : WIDTH/4 - PLAYERSIZE_SMALL.W, "y" : HEIGHT - PLAYERSIZE_SMALL.H },
 		"size"		: { "w" : PLAYERSIZE_SMALL.W, "h" : PLAYERSIZE_SMALL.H },
 		"control"	: "H",
 		"color"		: "green",
@@ -641,11 +969,12 @@ function updateDebugData(){
 		html +=
 			'ALIENINVADER:'+i+' '+
 			", Shots Fired: "+ALIENINVADERS[i].shotsFired+
-			// ", velocityx: "+ ALIENINVADERS[i].velocityx+
+			", frameslatency: "+ALIENINVADERS[i].frameslatency +
+			", velocityx: "+ ALIENINVADERS[i].velocityx+
 			", X: "+ALIENINVADERS[i].pos.x +
 			", Y: "+ALIENINVADERS[i].pos.y +
-			", color: "+ALIENINVADERS[i].color +
-			", HIDDEN: "+ ALIENINVADERS[i].hidden+
+			// ", color: "+ALIENINVADERS[i].color +
+			// ", HIDDEN: "+ ALIENINVADERS[i].hidden+
 			// ", type: "+ALIENINVADERS[i].type +
 			// ", jumpingY: "+ALIENINVADERS[i].jumpingY +
 			"<br>"
@@ -734,6 +1063,9 @@ function Player(x, y, width, height, control, color, playernum) {
 	this.y = y;
 	this.width = width;
 	this.height = height;
+
+	this.pos = { "x" : this.x, "y" : this.y };
+	this.size = { "w" : this.width, "h" : this.height };
 	this.control = control; // Can be 'H' or 'C'.
 	this.color = color;
 	this.playernum = playernum; // Accepts '1' or '2'
@@ -775,6 +1107,10 @@ function Player(x, y, width, height, control, color, playernum) {
 	this.draw = function(){
 		CONTEXT.fillStyle = this.color;
 		CONTEXT.fillRect(this.x, this.y, this.width, this.height);
+
+		var coords=spriteSheet.players.P1.frame1;
+		CONTEXT.drawImage(ship,coords.x,coords.y,coords.w,coords.h, this.x, this.y,this.width,this.height);
+		// return;
 	};
 }
 
@@ -836,6 +1172,12 @@ function Projectile(pos, size, velocityy, color, origin){
 			if ( this.ALBB_CollisionCheck( ALIENSHIPS[i], this) )	{
 				whichAS = i;
 				collision = true;
+
+				console.log();
+				console.log("Alien Ship #", i, "has been hit by projectile fired by", this.origin, "\n",
+				"Alien Ship:", ALIENSHIPS[i].pos, "\nProjectile:", this.pos, "\n",
+				"check: ", this.ALBB_CollisionCheck( ALIENSHIPS[i], this)
+				);
 				break;
 			}
 		}
@@ -877,6 +1219,7 @@ function Projectile(pos, size, velocityy, color, origin){
 			else if(this.origin == "AI"){
 				// console.log("Alien Invader has landed a hit on Player", whichPlayer);
 			}
+			this.removeThis = true;
 			PLAYERS[whichPlayer].timesHit++;
 			return;
 		}
@@ -916,7 +1259,7 @@ function Projectile(pos, size, velocityy, color, origin){
 
 	// Collision check: Alien Invader shoots Player.
 	this.alienInvaderShootsPlayer = function(){
-
+		//
 	};
 
 	this.updatePosition = function(){
@@ -970,6 +1313,12 @@ function Projectile(pos, size, velocityy, color, origin){
 	};
 
 	this.draw = function(){
+
+		var coords=spriteSheet.misc.shot1.frame1;
+		// console.log("ship", ship, ship.data);
+		CONTEXT.drawImage(ship,coords.x,coords.y,coords.w,coords.h, this.pos.x, this.pos.y,this.size.w,this.size.h);
+
+		return;
 		// Draw the projectile body.
 		CONTEXT.fillStyle = this.color;
 		CONTEXT.fillRect(this.pos.x, this.pos.y, this.size.w, this.size.h);
@@ -1028,7 +1377,7 @@ function AlienShip(pos, size, velocityx, color, type){
 
 		var newProjectile = {
 			"pos"		: { "x" : this.pos.x + this.size.w / 2, "y" : this.pos.y + this.size.h },
-			"size"		: { "w" : 3, "h" : 15 },
+			"size"		: { "w" : 15, "h" : 20 },
 			"velocityy"	: -5,
 			"color" 	: 'greenyellow',
 			"origin"		: "AS"
@@ -1072,80 +1421,14 @@ function AlienShip(pos, size, velocityx, color, type){
 	};
 
 	this.draw = function(){
+		// Colored rectangle
 		CONTEXT.fillStyle = this.color;
+		// CONTEXT.fillRect(this.pos.x, this.pos.y, this.size.w, this.size.h);
 		CONTEXT.fillRect(this.pos.x, this.pos.y, this.size.w, this.size.h);
 
-	// // first save the untranslated/unrotated context
- //   CONTEXT.save();
-
- //   // move the rotation point to the center of the rect
- //   CONTEXT.translate(this.pos.x, this.pos.y);
-
- //   // rotate the rect
- //   CONTEXT.rotate(R*Math.PI/180);
-
- //   CONTEXT.beginPath();
- //   CONTEXT.moveTo(0, -this.size.h);
- //   CONTEXT.lineTo( 0, -this.size.h);
- //   CONTEXT.lineTo( this.size.w, 0);
- //   CONTEXT.lineTo( 0, +this.size.h);
- //   CONTEXT.closePath();
-
- //   CONTEXT.strokeStyle = 'blue';
- //   CONTEXT.lineWidth = 5;
- //   CONTEXT.fillStyle = "rgb(72,128,72)";
- //   CONTEXT.stroke();
- //   CONTEXT.fill();
-
-	// // restore the context to its untranslated/unrotated state
- //   CONTEXT.restore();
-
- //   // first save the untranslated/unrotated context
- //   CONTEXT.save();
-
-	// // move the rotation point to the center of the rect
- //   CONTEXT.translate(this.pos.x, this.pos.y+this.size.h);
-
- //   // rotate the rect
- //   // CONTEXT.rotate(45*Math.PI/180);
-
-	// CONTEXT.beginPath();
- //   CONTEXT.strokeStyle = '#00F';
-
- //   // CONTEXT.moveTo(0, this.size.h);
-	// CONTEXT.arc(
-	// 	0,
-	// 	0,
-	// 	this.size.h/4 ,
-	// 	0,
-	// 	2*Math.PI
-	// );
-	// CONTEXT.closePath();
-	// CONTEXT.fillStyle = "rgb(255,0,0)";
-	// CONTEXT.stroke();
-	// CONTEXT.fill();
-
- //   // restore the context to its untranslated/unrotated state
- //   CONTEXT.restore();
-    // return;
-
-		// Make it an upside-down triangle.
-		// // the triangle
-		// CONTEXT.beginPath();
-		// CONTEXT.moveTo(this.pos.x, this.pos.y);
-		// CONTEXT.lineTo(this.pos.x-this.size.w*4, this.pos.y-this.size.h/2);
-		// CONTEXT.lineTo(this.pos.x-this.size.w+30, this.pos.y-this.size.h);
-		// CONTEXT.closePath();
-
-		// // the outline
-		// CONTEXT.lineWidth = 2;
-		// CONTEXT.strokeStyle = '#555555';
-		// CONTEXT.stroke();
-
-		// // the fill color
-		// CONTEXT.fillStyle = this.color;
-		// CONTEXT.fill();
-
+		var coords=spriteSheet.alienShips.ship1.frame1;
+		// CONTEXT.drawImage(ship,coords.x,coords.y,coords.w,coords.h, this.pos.x, this.pos.y, this.size.w, this.size.h);
+		CONTEXT.drawImage(ship,coords.x,coords.y,coords.w,coords.h, this.pos.x, this.pos.y, this.size.w, this.size.h);
 	};
 }
 
@@ -1160,6 +1443,9 @@ function AlienInvader(pos, size, velocityx, color, type){
 	this.shotsFired = 0;
 	this.jumpingY = 0;
 	this.hidden = false;			// Hidden happens when this Alien Invader is not visible... hard mode!!
+	this.framenum = "frame1";				//
+	this.frameslatency = 0;
+	this.frameslatencymax = 5;
 
 	this.fire = function(){
 		// An Alien Invader has fired a shot! Configure a new projectile!
@@ -1167,7 +1453,7 @@ function AlienInvader(pos, size, velocityx, color, type){
 
 		var newProjectile = {
 			"pos"		: { "x" : this.pos.x + this.size.w / 2, "y" : this.pos.y + this.size.h },
-			"size"		: { "w" : 3, "h" : 15 },
+			"size"		: { "w" : 15, "h" : 20 },
 			"velocityy"	: -5,
 			"color" 	: 'skyblue',
 			"origin"	: "AI"
@@ -1200,6 +1486,35 @@ function AlienInvader(pos, size, velocityx, color, type){
 	this.draw = function(){
 		CONTEXT.fillStyle = this.color;
 		CONTEXT.fillRect(this.pos.x, this.pos.y, this.size.w, this.size.h);
+
+		var coords;
+
+		if(this.type == "0"){ coords=spriteSheet.alienInvaders.type00[this.framenum]; }
+		if(this.type == "1"){ coords=spriteSheet.alienInvaders.type01[this.framenum]; }
+		if(this.type == "2"){ coords=spriteSheet.alienInvaders.type02[this.framenum]; }
+		if(this.type == "3"){ coords=spriteSheet.alienInvaders.type03[this.framenum]; }
+		if(this.type == "4"){ coords=spriteSheet.alienInvaders.type04[this.framenum]; }
+		if(this.type == "5"){ coords=spriteSheet.alienInvaders.type05[this.framenum]; }
+		if(this.type == "6"){ coords=spriteSheet.alienInvaders.type06[this.framenum]; }
+		if(this.type == "7"){ coords=spriteSheet.alienInvaders.type07[this.framenum]; }
+		if(this.type == "8"){ coords=spriteSheet.alienInvaders.type08[this.framenum]; }
+		if(this.type == "9"){ coords=spriteSheet.alienInvaders.type09[this.framenum]; }
+
+		// var coords=spriteSheet.alienInvaders.type;
+		// console.log("coords", coords, this.type, this.framenum);
+
+		CONTEXT.drawImage(
+			ship,
+			coords.x,
+			coords.y,
+			coords.w,
+			coords.h,
+			this.pos.x,
+			this.pos.y,
+			this.size.w,
+			this.size.h);
+		// return;
+
 	};
 }
 
