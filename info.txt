@@ -1,3 +1,49 @@
+============================
+VERSION 4.
+
+REFACTOR!!
+
+Load spritesheet image. Break up and cache into separate (and resized) images.
+	new_spriteSheet has the spritesheet coords.
+	DIMS has the new w and h for the broken-out images.
+
+global object: GAMEVARS
+
+global object: DOM
+	Holds references to the DOM
+
+Need a better gameloop.
+
+window.onload
+
+The alien ship should move slowly, come out on a timer, and exit the screen when the boundary is reached.
+
+The invaders should speed up as they are defeated. (fmax)
+
+requestAnimationFrame should be used, not setTimeout.
+
+frame rate needs to be able to be limited.
+
+Objects: Player, Projectile, AlienShip, AlienInvader, Barrier.
+
+The speed of the projectiles from all entities should not change once set.
+
+Collisions only happen with projectiles and screen boundaries.
+
+New graphics (from the Atari 2600 version of the game.)
+
+Title screen with menu.
+
+Entities can have multiple frames or just one.
+
+Keep track of player shots and hits on enemy.
+
+All canvas draws are written to unattached-to-DOM canvas BEFORE written to the DOM-attached canvas.
+
+
+
+============================
+
 There are lots of global variables. They should be stored in a global object.
 
 
