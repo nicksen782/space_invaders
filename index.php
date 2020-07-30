@@ -46,7 +46,8 @@
 
 			<!--This is where the game display is..-->
 			<div>
-				<canvas id="mainGameCanvas" width="550" height="550"></canvas>
+				<!-- <canvas id="mainGameCanvas" width="550" height="550"></canvas> -->
+				<canvas id="mainGameCanvas" width="240" height="240"></canvas>
 			</div>
 
 			<!--Information-->
@@ -61,14 +62,14 @@
 
 					<div id="div_controls">GAME CONTROLS
 P1
-Left Arrow  = Move Player 1 LEFT
-Right Arrow = Move Player 1 RIGHT
-Up Arrow    = Player 1 FIRE
+Left Arrow  = Move LEFT
+Right Arrow = Move RIGHT
+Up Arrow    = FIRE
 
 P2
-A Key       = Move Player 2 LEFT
-D Key       = Move Player 2 RIGHT
-W Key       = Player 2 FIRE
+A Key       = Move LEFT
+D Key       = Move RIGHT
+W Key       = FIRE
 					</div>
 
 					<div id="instructions">
@@ -99,12 +100,12 @@ W Key       = Player 2 FIRE
 						<input type="button" id="dnFPS" value="Lower FPS"><br>
 						<input type="button" id="addAS" value="Add Alien Ship"><br>
 						<input type="button" id="removeAllAS" value="Remove All Alien Ships"><br>
-						<input type="button" onclick="generateStarBackground1();" value="generateStarBackground1"><br>
-						<input type="button" onclick="generateStarBackground2();" value="generateStarBackground2"><br>
-						<!-- <input type="button" onclick="drawStarBackground1();"     value="drawStarBackground1"><br> -->
-						<!-- <input type="button" onclick="drawStarBackground2();"     value="drawStarBackground2"><br> -->
-						<input type="button" onclick="useStarBackground1();"     value="Use StarBackground1"><br>
-						<input type="button" onclick="useStarBackground2();"     value="Use StarBackground2"><br>
+						<input type="button" onclick="STARS.generateStarBackground1();" value="generateStarBackground1"><br>
+						<input type="button" onclick="STARS.generateStarBackground2();" value="generateStarBackground2"><br>
+						<!-- <input type="button" onclick="STARS.drawStarBackground1();"     value="drawStarBackground1"><br> -->
+						<!-- <input type="button" onclick="STARS.drawStarBackground2();"     value="drawStarBackground2"><br> -->
+						<input type="button" onclick="STARS.useStarBackground1();"     value="Use StarBackground1"><br>
+						<input type="button" onclick="STARS.useStarBackground2();"     value="Use StarBackground2"><br>
 						<br>
 						<input type="button" onclick="DEBUG.removeFirstAlienInvader();"     value="removeFirstAlienInvader"><br>
 						<input type="button" onclick="DEBUG.removeLastAlienInvader();"     value="removeLastAlienInvader"><br>
@@ -113,7 +114,80 @@ W Key       = Player 2 FIRE
 						<input type="button" onclick="DEBUG.lowerInvaders();"     value="Lower Invaders"><br>
 						<br>
 						<input type="button" onclick="UTILITYFUNCTIONS.enlargeRandomInvader();"     value="Enlarge 1 Invader"><br>
-						<div id="mouseCoordsDiv"></div>
+
+						<div id="mouseCoordsDiv">*</div>
+
+						<!-- <br>
+						<button title="alienShips" onclick='DEBUG.drawSprite(0 );'>0</button>
+						<button title="alienShips" onclick='DEBUG.drawSprite(1 );'>1</button>
+						<br>
+						<br>
+
+						<button onclick='DEBUG.drawSprite(2 );'>2</button>
+						<button onclick='DEBUG.drawSprite(3 );'>3</button>
+						<button onclick='DEBUG.drawSprite(4 );'>4</button>
+						<button onclick='DEBUG.drawSprite(5 );'>5</button>
+						<br>
+						<br>
+
+						<button onclick='DEBUG.drawSprite(6 );'>6</button>
+						<button onclick='DEBUG.drawSprite(7 );'>7</button>
+						<br>
+
+						<button onclick='DEBUG.drawSprite(8 );'>8</button>
+						<button onclick='DEBUG.drawSprite(9 );'>9</button>
+						<br>
+
+						<button onclick='DEBUG.drawSprite(10);'>10</button>
+						<button onclick='DEBUG.drawSprite(11);'>11</button>
+						<br>
+
+						<button onclick='DEBUG.drawSprite(12);'>12</button>
+						<button onclick='DEBUG.drawSprite(13);'>13</button>
+						<br>
+
+						<button onclick='DEBUG.drawSprite(14);'>14</button>
+						<button onclick='DEBUG.drawSprite(15);'>15</button>
+						<br>
+
+						<button onclick='DEBUG.drawSprite(16);'>16</button>
+						<button onclick='DEBUG.drawSprite(17);'>17</button>
+						<br>
+
+						<button onclick='DEBUG.drawSprite(18);'>18</button>
+						<button onclick='DEBUG.drawSprite(19);'>19</button>
+						<br>
+
+						<button onclick='DEBUG.drawSprite(20);'>20</button>
+						<button onclick='DEBUG.drawSprite(21);'>21</button>
+						<br>
+
+						<button onclick='DEBUG.drawSprite(22);'>22</button>
+						<button onclick='DEBUG.drawSprite(23);'>23</button>
+						<br>
+
+						<button onclick='DEBUG.drawSprite(24);'>24</button>
+						<button onclick='DEBUG.drawSprite(25);'>25</button>
+						<br>
+						<br>
+
+						<button onclick='DEBUG.drawSprite(26);'>26</button>
+						<button onclick='DEBUG.drawSprite(27);'>27</button>
+						<br>
+
+						<button onclick='DEBUG.drawSprite(28);'>28</button>
+						<button onclick='DEBUG.drawSprite(29);'>29</button>
+						<button onclick='DEBUG.drawSprite(30);'>30</button>
+						<button onclick='DEBUG.drawSprite(31);'>31</button>
+						<button onclick='DEBUG.drawSprite(32);'>32</button>
+						<button onclick='DEBUG.drawSprite(33);'>33</button>
+						<br>
+
+						<button onclick='DEBUG.drawSprite(34);'>34</button>
+						<button onclick='DEBUG.drawSprite(35);'>35</button>
+						<button onclick='DEBUG.drawSprite(36);'>36</button>
+						<button onclick='DEBUG.drawSprite(37);'>37</button> -->
+
 					</div>
 				</div>
 

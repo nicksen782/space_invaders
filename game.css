@@ -15,9 +15,15 @@ body {
     display: inline-block;
     vertical-align: top;
     padding: 3px;
-    border: 1px solid lightslategray;
+    border: 2px solid lightslategray;
     text-align: left;
     width: 555px;
+    /* width: 600px; */
+    /* background-color: #0a0a0a; */
+    background-color: #843200;
+    padding: 10px;
+    padding-bottom: 10px;
+    border-radius: 15px;
 }
 
 div#sideDiv {
@@ -36,7 +42,11 @@ div#sideDiv {
     text-align: center;
     font-weight: bold;
     margin-top: 5px;
-    border: 1px solid lightslategray;
+    border: 2px solid lightslategray;
+    width: 550px;
+    margin: auto;
+    margin-top: 5px;
+    background-color: black;
 }
 
 #p1Score {
@@ -65,9 +75,13 @@ div#sideDiv {
 
 #mainGameCanvas {
     display: block;
-    border: 1px solid lightslategray;
+    border: 2px solid lightslategray;
     margin: auto;
     margin-top: 5px;
+    /* padding: 5px; */
+    background-color:black;
+    width: 550px;
+    height: 550px;
 }
 
 #gametitle {
@@ -75,6 +89,10 @@ div#sideDiv {
     text-align: center;
     font-weight: bold;
     font-size: 40px;
+    width: 550px;
+    margin: auto;
+    border: 2px solid lightslategray;
+    background-color: black;
 }
 
 #modifiers {
@@ -100,7 +118,7 @@ div#sideDiv {
 
 #div_controls {
     min-height: 5em;
-    padding-top: 12px;
+    /* padding-top: 12px; */
     font-family: monospace;
     font-size: 11px;
     white-space: pre;
@@ -111,14 +129,17 @@ div#sideDiv {
     display: inline-block;
     vertical-align: top;
     background-image: url('images/space_invaders02.png');
-    width: 260px;
+    width: 250px;
     height: 200px;
     background-size: 100% 100%;
     background-repeat: no-repeat;
 }
 
 #instructions {
-    white-space: normal;
+    /* white-space: normal; */
+    font-family: monospace;
+    font-size: 11px;
+    /* white-space: pre; */
 }
 
 .debugTable1 {
@@ -137,7 +158,11 @@ div#sideDiv {
 
 #infodiv {
     margin-top: 5px;
-    border: 1px solid lightslategray;
+    border: 2px solid lightslategray;
+    background-color: black;
+    width: 550px;
+    margin: auto;
+    margin-top: 5px;
 }
 
 .centerMain {

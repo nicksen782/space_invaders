@@ -23,8 +23,10 @@ let STARS = {
 		let stars = 250;
 		STARS.starfield1=[];
 		for (let i = 0; i < stars; i++) {
-			let x = Math.floor(Math.random() * CONTEXT.canvas.offsetWidth)  ;
-			let y = Math.floor(Math.random() * CONTEXT.canvas.offsetHeight) ;
+			// let x = Math.floor(Math.random() * CONTEXT.canvas.offsetWidth)  ;
+			// let y = Math.floor(Math.random() * CONTEXT.canvas.offsetHeight) ;
+			let x = Math.floor(Math.random() * CONTEXT.canvas.width)  ;
+			let y = Math.floor(Math.random() * CONTEXT.canvas.height) ;
 			let radius = Math.random() * 1.25;
 
 			STARS.starfield1.push({
@@ -51,8 +53,10 @@ let STARS = {
 		let colorrange = [0,60,240];
 		STARS.starfield2=[];
 		for (let i = 0; i < stars; i++) {
-			let x = Math.floor(Math.random() * CONTEXT.canvas.offsetWidth)  ;
-			let y = Math.floor(Math.random() * CONTEXT.canvas.offsetHeight) ;
+			// let x = Math.floor(Math.random() * CONTEXT.canvas.offsetWidth)  ;
+			// let y = Math.floor(Math.random() * CONTEXT.canvas.offsetHeight) ;
+			let x = Math.floor(Math.random() * CONTEXT.canvas.width)  ;
+			let y = Math.floor(Math.random() * CONTEXT.canvas.height) ;
 			let radius = Math.random() * 1.25;
 			let hue    = colorrange[STARS.getRandom(0,colorrange.length - 1)];
 			let sat    = STARS.getRandom(75,100);
@@ -110,302 +114,119 @@ let KEYBOARD_CONTROLS = {
 // Holds the sprite sheet image.
 let ship = new Image();
 ship.src = 'images/invaders_1_.png';
+
 // Holds the positions and dimensions of each sprite.
 let spriteSheet = {
 	"alienInvaders": {
 		"type00": {
 			"name": "",
-			"frame1": {
-				"x": "3",
-				"y": "253",
-				"w": "102",
-				"h": "82"
-			},
-			"frame2": {
-				"x": "94",
-				"y": "253",
-				"w": "102",
-				"h": "82"
-			}
+			"frame1": { "x": "3", "y": "253", "w": "102", "h": "82" },
+			"frame2": { "x": "94", "y": "253", "w": "102", "h": "82" }
 		},
 		"type01": {
 			"name": "",
-			"frame1": {
-				"x": "302",
-				"y": "13",
-				"w": "102",
-				"h": "82"
-			},
-			"frame2": {
-				"x": "417",
-				"y": "13",
-				"w": "102",
-				"h": "82"
-			}
+			"frame1": { "x": "302", "y": "13", "w": "102", "h": "82" },
+			"frame2": { "x": "417", "y": "13", "w": "102", "h": "82" }
 		},
 		"type02": {
 			"name": "",
-			"frame1": {
-				"x": "260",
-				"y": "373",
-				"w": "102",
-				"h": "82"
-			},
-			"frame2": {
-				"x": "367",
-				"y": "373",
-				"w": "102",
-				"h": "82"
-			}
+			"frame1": { "x": "260", "y": "373", "w": "102", "h": "82" },
+			"frame2": { "x": "367", "y": "373", "w": "102", "h": "82" }
 		},
 		"type03": {
 			"name": "",
-			"frame1": {
-				"x": "226",
-				"y": "493",
-				"w": "102",
-				"h": "82"
-			},
-			"frame2": {
-				"x": "336",
-				"y": "493",
-				"w": "102",
-				"h": "82"
-			}
+			"frame1": { "x": "226", "y": "493", "w": "102", "h": "82" },
+			"frame2": { "x": "336", "y": "493", "w": "102", "h": "82" }
 		},
 		"type04": {
 			"name": "",
-			"frame1": {
-				"x": "194",
-				"y": "253",
-				"w": "102",
-				"h": "82"
-			},
-			"frame2": {
-				"x": "305",
-				"y": "253",
-				"w": "102",
-				"h": "82"
-			}
+			"frame1": { "x": "194", "y": "253", "w": "102", "h": "82" },
+			"frame2": { "x": "305", "y": "253", "w": "102", "h": "82" }
 		},
 		"type05": {
 			"name": "",
-			"frame1": {
-				"x": "18",
-				"y": "373",
-				"w": "102",
-				"h": "82"
-			},
-			"frame2": {
-				"x": "144",
-				"y": "373",
-				"w": "102",
-				"h": "82"
-			}
+			"frame1": { "x": "18",  "y": "373", "w": "102", "h": "82" },
+			"frame2": { "x": "144", "y": "373", "w": "102", "h": "82" }
 		},
 		"type06": {
 			"name": "",
-			"frame1": {
-				"x": "299",
-				"y": "133",
-				"w": "102",
-				"h": "82"
-			},
-			"frame2": {
-				"x": "299",
-				"y": "133",
-				"w": "102",
-				"h": "82"
-			}
+			"frame1": { "x": "299", "y": "133", "w": "102", "h": "82" },
+			"frame2": { "x": "299", "y": "133", "w": "102", "h": "82" }
 		},
 		"type07": {
 			"name": "",
-			"frame1": {
-				"x": "4",
-				"y": "503",
-				"w": "102",
-				"h": "82"
-			},
-			"frame2": {
-				"x": "114",
-				"y": "503",
-				"w": "102",
-				"h": "82"
-			}
+			"frame1": { "x": "4"  , "y": "503", "w": "102", "h": "82" },
+			"frame2": { "x": "114", "y": "503", "w": "102", "h": "82" }
 		},
 		"type08": {
-			"frame1": {
-				"name": "TITLE SCREEN",
-				"x": "18",
-				"y": "13",
-				"w": "112",
-				"h": "82"
-			},
-			"frame2": {
-				"x": "164",
-				"y": "13",
-				"w": "112",
-				"h": "82"
-			}
+			"name": "TITLE SCREEN",
+			"frame1": { "x": "18" , "y": "13", "w": "112", "h": "82" },
+			"frame2": { "x": "164", "y": "13", "w": "112", "h": "82" }
 		},
 		"type09": {
 			"name": "TITLE SCREEN",
-			"frame1": {
-				"x": "18",
-				"y": "133",
-				"w": "122",
-				"h": "82"
-			},
-			"frame2": {
-				"x": "159",
-				"y": "133",
-				"w": "122",
-				"h": "82"
-			}
+			"frame1": { "x": "18" , "y": "133", "w": "122", "h": "82" },
+			"frame2": { "x": "159", "y": "133", "w": "122", "h": "82" }
 		}
 	},
 	"alienShips": {
 		"ship1": {
-			"frame1": {
-				"h": "59",
-				"w": "125",
-				"x": "19",
-				"y": "634"
-			},
-			"frame2": {
-				"h": "59",
-				"w": "125",
-				"x": "19",
-				"y": "634"
-			}
+			"frame1": { "h": "59", "w": "125", "x": "19", "y": "634" },
+			"frame2": { "h": "59", "w": "125", "x": "19", "y": "634" }
 		}
 	},
 	"players": {
 		"P1": {
-			"frame1": {
-				"x": "149",
-				"y": "637",
-				"w": "75",
-				"h": "54"
-			},
-			"frame2": {
-				"w": "75",
-				"h": "54",
-				"x": "149",
-				"y": "637"
-			}
+			"frame1": { "x": "149", "y": "637", "w": "75", "h": "54" },
+			"frame2": { "w": "75", "h": "54", "x": "149", "y": "637" }
 		},
 		"P2": {
-			"frame1": {
-				"x": "149",
-				"y": "637",
-				"w": "75",
-				"h": "54"
-			},
-			"frame2": {
-				"w": "75",
-				"h": "54",
-				"x": "149",
-				"y": "637"
-			}
+			"frame1": { "x": "149", "y": "637", "w": "75", "h": "54" },
+			"frame2": { "w": "75", "h": "54", "x": "149", "y": "637" }
 		}
 	},
 	"misc": {
 		"barrier1": {
-			"frame1": {
-				"x": "416",
-				"y": "269",
-				"w": "54",
-				"h": "75"
-			},
-			"frame2": {
-				"x": "491",
-				"y": "270",
-				"w": "54",
-				"h": "75"
-			}
+			"frame1": { "x": "416", "y": "269", "w": "54", "h": "75" },
+			"frame2": { "x": "491", "y": "270", "w": "54", "h": "75" }
 		},
 		"barrier2": {
-			"frame1": {
-				"x": "486",
-				"y": "393",
-				"w": "30",
-				"h": "53"
-			},
-			"frame2": {
-				"x": "486",
-				"y": "393",
-				"w": "30",
-				"h": "53"
-			}
+			"frame1": { "x": "486", "y": "393", "w": "30", "h": "53" },
+			"frame2": { "x": "486", "y": "393", "w": "30", "h": "53" }
 		},
 		"shot1": {
-			"frame1": {
-				"x": "486",
-				"y": "393",
-				"w": "30",
-				"h": "53"
-			},
-			"frame2": {
-				"x": "486",
-				"y": "393",
-				"w": "30",
-				"h": "53"
-			}
+			"frame1": { "x": "486", "y": "393", "w": "30", "h": "53" },
+			"frame2": { "x": "486", "y": "393", "w": "30", "h": "53" }
 		},
 		"shot2": {
-			"frame1": {
-				"x": "486",
-				"y": "393",
-				"w": "30",
-				"h": "53"
-			},
-			"frame2": {
-				"x": "486",
-				"y": "393",
-				"w": "30",
-				"h": "53"
-			}
+			"frame1": { "x": "486", "y": "393", "w": "30", "h": "53" },
+			"frame2": { "x": "486", "y": "393", "w": "30", "h": "53" }
 		},
 		"hit1": {
-			"frame1": {
-				"x": "240",
-				"y": "633",
-				"w": "107",
-				"h": "63"
-			},
-			"frame2": {
-				"x": "240",
-				"y": "633",
-				"w": "107",
-				"h": "63"
-			}
+			"frame1": { "x": "240", "y": "633", "w": "107", "h": "63" },
+			"frame2": { "x": "240", "y": "633", "w": "107", "h": "63" }
 		},
 		"hit2": {
-			"frame2": {
-				"x": "354",
-				"y": "630",
-				"w": "107",
-				"h": "62"
-			},
-			"frame1": {
-				"h": "62",
-				"w": "107",
-				"y": "630",
-				"x": "354"
-			}
+			"frame1": { "h": "62", "w": "107", "y": "630", "x": "354" },
+			"frame2": { "x": "354", "y": "630", "w": "107", "h": "62" }
 		}
 	}
 };
-
-let PLAYERSIZE_SMALL = { "W" : 50, "H" : 25 };
-let PLAYERSIZE_LARGE = { "W" : 60, "H" : 20 };
 
 // CANVAS dimensions.
 let WIDTH  ;
 let HEIGHT ;
 
-// Changable Game Elements
+// Game Elements (mostly constants, except for fmax for invaders.)
+let DIMS = {
+	invader : { "w":20, "h":16, "spacingx":12, "spacingy": 8, "xvel": 2, "fmax":15 },
+	ship    : { "w":24, "h":8, "xvel": 2 },
+	player  : { "w":24, "h":8, "xvel": 3 },
+	shot    : { "w":8 , "h":8 },
+
+	barrier : { "w":8 , "h":8  },
+	hit     : { "w":8 , "h":8  },
+};
 let CANVAS        ;            // Handle on the game's CANVAS.
 let CONTEXT       ;            // Game canvas drawable CONTEXT.
 let CANVAS_post;
@@ -418,10 +239,6 @@ let ALIENINVADERS     = [];    // Holds the objects for each Alien Invader on sc
 let PAUSED            = false; // Boolean for pause.
 let KEYSTATE          = [];    // Array that holds all keyboard keys that are pressed.
 let BOTTOM_ENDGAME    = 0 ;    // DEFINED IN WINDOW.ONLOAD.
-let INVADER_W         = 32;    //
-let INVADER_H         = 32;    //
-let INVADER_SPACING_X = Math.ceil(INVADER_W/1.2);
-let INVADER_SPACING_Y = Math.ceil(INVADER_H/1.2);
 
 // Projectile Queue Counters.
 let PROJECTILES_QUEUE_P1 = 0;
@@ -591,7 +408,7 @@ let DEBUG = {
 		let alienInvaders       = function(){
 			let mapFunction = function(d,i,a){
 				let dir = (Math.sign(d.velocityx) == 1 ? 'R' : 'L') ;
-				let frame = d.frameslatency + "/" + d.frameslatencymax ;
+				let frame = d.frameslatency + "/" + DIMS.invader.fmax; ;
 				let x = d.pos.x;
 				let y = d.pos.y;
 
@@ -737,6 +554,69 @@ let DEBUG = {
 		}
 	},
 
+	clearCanvas : function(){
+		CONTEXT_post.clearRect(0,0, WIDTH, HEIGHT);
+	},
+	drawSprite : function(index){
+		let sprites=[
+			[ "alienShips"   , "ship1"   , "frame1", DIMS.ship.w   , DIMS.ship.   h ] ,
+			[ "alienShips"   , "ship1"   , "frame2", DIMS.ship.w   , DIMS.ship.   h ] ,
+			[ "players"      , "P1"      , "frame1", DIMS.player.w , DIMS.player. h ] ,
+			[ "players"      , "P1"      , "frame2", DIMS.player.w , DIMS.player. h ] ,
+			[ "players"      , "P2"      , "frame1", DIMS.player.w , DIMS.player. h ] ,
+			[ "players"      , "P2"      , "frame2", DIMS.player.w , DIMS.player. h ] ,
+			[ "alienInvaders", "type00"  , "frame1", DIMS.invader.w, DIMS.invader.h ] ,
+			[ "alienInvaders", "type00"  , "frame2", DIMS.invader.w, DIMS.invader.h ] ,
+			[ "alienInvaders", "type01"  , "frame1", DIMS.invader.w, DIMS.invader.h ] ,
+			[ "alienInvaders", "type01"  , "frame2", DIMS.invader.w, DIMS.invader.h ] ,
+			[ "alienInvaders", "type02"  , "frame1", DIMS.invader.w, DIMS.invader.h ] ,
+			[ "alienInvaders", "type02"  , "frame2", DIMS.invader.w, DIMS.invader.h ] ,
+			[ "alienInvaders", "type03"  , "frame1", DIMS.invader.w, DIMS.invader.h ] ,
+			[ "alienInvaders", "type03"  , "frame2", DIMS.invader.w, DIMS.invader.h ] ,
+			[ "alienInvaders", "type04"  , "frame1", DIMS.invader.w, DIMS.invader.h ] ,
+			[ "alienInvaders", "type04"  , "frame2", DIMS.invader.w, DIMS.invader.h ] ,
+			[ "alienInvaders", "type05"  , "frame1", DIMS.invader.w, DIMS.invader.h ] ,
+			[ "alienInvaders", "type05"  , "frame2", DIMS.invader.w, DIMS.invader.h ] ,
+			[ "alienInvaders", "type06"  , "frame1", DIMS.invader.w, DIMS.invader.h ] ,
+			[ "alienInvaders", "type06"  , "frame2", DIMS.invader.w, DIMS.invader.h ] ,
+			[ "alienInvaders", "type07"  , "frame1", DIMS.invader.w, DIMS.invader.h ] ,
+			[ "alienInvaders", "type07"  , "frame2", DIMS.invader.w, DIMS.invader.h ] ,
+			[ "alienInvaders", "type08"  , "frame1", DIMS.invader.w, DIMS.invader.h ] ,
+			[ "alienInvaders", "type08"  , "frame2", DIMS.invader.w, DIMS.invader.h ] ,
+			[ "alienInvaders", "type09"  , "frame1", DIMS.invader.w, DIMS.invader.h ] ,
+			[ "alienInvaders", "type09"  , "frame2", DIMS.invader.w, DIMS.invader.h ] ,
+			[ "misc"         , "barrier1", "frame1", DIMS.barrier.w, DIMS.barrier.h ] ,
+			[ "misc"         , "barrier1", "frame2", DIMS.barrier.w, DIMS.barrier.h ] ,
+			[ "misc"         , "barrier2", "frame1", DIMS.barrier.w, DIMS.barrier.h ] ,
+			[ "misc"         , "barrier2", "frame2", DIMS.barrier.w, DIMS.barrier.h ] ,
+			[ "misc"         , "shot1"   , "frame1", DIMS.shot.w   , DIMS.shot.h    ] ,
+			[ "misc"         , "shot1"   , "frame2", DIMS.shot.w   , DIMS.shot.h    ] ,
+			[ "misc"         , "shot2"   , "frame1", DIMS.shot.w   , DIMS.shot.h    ] ,
+			[ "misc"         , "shot2"   , "frame2", DIMS.shot.w   , DIMS.shot.h    ] ,
+			[ "misc"         , "hit1"    , "frame1", DIMS.hit.w    , DIMS.hit.h     ] ,
+			[ "misc"         , "hit1"    , "frame2", DIMS.hit.w    , DIMS.hit.h     ] ,
+			[ "misc"         , "hit2"    , "frame1", DIMS.hit.w    , DIMS.hit.h     ] ,
+			[ "misc"         , "hit2"    , "frame2", DIMS.hit.w    , DIMS.hit.h     ] ,
+		];
+
+		console.log(sprites);
+
+		if(!sprites[index]){ console.log("invalid!"); return; }
+		let sprite=sprites[index];
+		let key   = sprite[0];
+		let type  = sprite[1];
+		let frame = sprite[2];
+		let w     = sprite[3];
+		let h     = sprite[4];
+
+		let x=0;
+		let y=0;
+
+		DEBUG.clearCanvas();
+
+		let coords = spriteSheet[key][type][frame];
+		CONTEXT_post.drawImage( ship, coords.x, coords.y, coords.w, coords.h, x, y, w, h );
+	},
 };
 
 // Utility functions that can be called from anywhere. All neatly contained within this object.
@@ -784,10 +664,10 @@ let UTILITYFUNCTIONS = {
 		CONTEXT.fillStyle = "black";
 		CONTEXT.fillRect(0,0,CANVAS.width, CANVAS.height);
 
-		CONTEXT.font = "36px Arial";
+		CONTEXT.font = "16px Arial";
 		CONTEXT.fillStyle = "white";
-		CONTEXT.fillText("Click anywhere on the", 90, 250);
-		CONTEXT.fillText(" webpage to continue.", 90, 300);
+		CONTEXT.fillText("Click anywhere on the", 40, 110);
+		CONTEXT.fillText(" webpage to continue.", 40, 130);
 
 		// Draw from the non-DOM-attached canvas to the real canvas.
 		CONTEXT_post.drawImage(CANVAS, 0, 0);
@@ -814,12 +694,14 @@ let UTILITYFUNCTIONS = {
 
 	// Sound effects
 	sounds         : {
-		"player_shoot"        : { "src":"sounds/shoot5.mp3", "elem":undefined } ,
-		"alien_ship_shoot"    : { "src":"sounds/shoot2.mp3", "elem":undefined } ,
-		"alien_invader_shoot" : { "src":"sounds/shoot4.mp3", "elem":undefined } ,
-		"player_hit"          : { "src":"sounds/hit1.mp3", "elem":undefined } ,
-		"alien_ship_hit"      : { "src":"sounds/hit1.mp3", "elem":undefined } ,
-		"alien_invader_hit"   : { "src":"sounds/hit1.mp3", "elem":undefined } ,
+		"player_shoot"        : { "src":"sounds/shoot5.mp3", "elem":undefined, vol:0.0075*(3+2) } ,
+		"alien_ship_shoot"    : { "src":"sounds/shoot2.mp3", "elem":undefined, vol:0.0075*(3+2) } ,
+		"alien_invader_shoot" : { "src":"sounds/shoot4.mp3", "elem":undefined, vol:0.0075*(3+2) } ,
+		"player_hit"          : { "src":"sounds/hit1.mp3"  , "elem":undefined, vol:0.0075*(3+2) } ,
+		"alien_ship_hit"      : { "src":"sounds/hit1.mp3"  , "elem":undefined, vol:0.0075*(3+2) } ,
+		"alien_invader_hit"   : { "src":"sounds/hit1.mp3"  , "elem":undefined, vol:0.0075*(3+2) } ,
+		"alien_invader_move1" : { "src":"sounds/move1.mp3" , "elem":undefined, vol:0.0750*(4+2) } ,
+		"alien_invader_move2" : { "src":"sounds/move2.mp3" , "elem":undefined, vol:0.0750*(4+2) } ,
 	},
 	loadSoundFiles : function(){
 		// UTILITYFUNCTIONS.loadSoundFiles()
@@ -851,14 +733,10 @@ let UTILITYFUNCTIONS = {
 		// Use cached copy of the sound file.
 		let elem = UTILITYFUNCTIONS.sounds[src].elem;
 
-		//
-		// console.log( UTILITYFUNCTIONS.sounds[src], src );
-		// elem.pause();
 		elem.currentTime = 0;
-		// console.log("can play:", elem.canPlayType('audio/mpeg')); // "maybe"
-		// elem.play().then(function(e){ console.log("success", e); }.catch(function(e){ console.log("fail", e); }));
 
-		elem.volume=0.025;
+		if(UTILITYFUNCTIONS.sounds[src].elem != null){ elem.volume=UTILITYFUNCTIONS.sounds[src].vol;}
+
 		elem.play();
 	},
 
@@ -894,13 +772,13 @@ let UTILITYFUNCTIONS = {
 		// x, y, width, height, control, color, playernum
 		PLAYERS.push (
 			new Player(
-				newPlayer.pos.x,	// x
-				newPlayer.pos.y,	// y
-				newPlayer.size.w,	// width
-				newPlayer.size.h,	// height
-				newPlayer.control,	// control
-				newPlayer.color,	// color
-				newPlayer.playernum	// playernum
+				newPlayer.pos.x,    // x
+				newPlayer.pos.y,    // y
+				newPlayer.size.w,   // width
+				newPlayer.size.h,   // height
+				newPlayer.control,  // control
+				newPlayer.color,    // color
+				newPlayer.playernum // playernum
 			)
 		);
 	},
@@ -936,9 +814,9 @@ let UTILITYFUNCTIONS = {
 			// Add the new projectile into the game.
 			let newProjectile = {
 				"pos"		: { "x" : thisPlayer.x+thisPlayer.width/2-3, "y" : thisPlayer.y-thisPlayer.height/2-3 },
-				"size"		: { "w" : 15, "h" : 20 },
+				"size"		: { "w" : DIMS.shot.w, "h" : DIMS.shot.h },
 				// "velocityy"	: 15  + Math.floor((Math.random() * 5) + 0),
-				"velocityy"	: 15 ,
+				"velocityy"	: 6 ,
 				"color" 	: color,
 				"origin"	: origin
 			};
@@ -1048,8 +926,8 @@ let UTILITYFUNCTIONS = {
 
 		// Size
 		let size = {
-			"w": 50,
-			"h": 20
+			"w": DIMS.ship.w,
+			"h": DIMS.ship.h
 		};
 
 		// Position.
@@ -1074,7 +952,7 @@ let UTILITYFUNCTIONS = {
 
 		// Velocity
 		// let velocityx = Math.floor(Math.random()*10) + 5;
-		let velocityx = 5;
+		let velocityx = DIMS.ship.xvel;
 		if     (random5050==0){ velocityx *=  1; }              // If on the left side then make it go RIGHT (Positive).
 		else if(random5050==1){ velocityx *= -1; }              // If on the left side then make it go RIGHT (Positive).
 		// velocityx *= Math.floor(Math.random()*1) == 1 ? 1 : -1; // Make it negative 50% of the time.
@@ -1088,7 +966,7 @@ let UTILITYFUNCTIONS = {
 		// Create an Alien Ship.
 		let newAlienShip = {
 			"pos"		: { "x" : pos.x , "y" : pos.y  },
-			"size"		: { "w" : size.w, "h" : size.h },
+			"size"		: { "w" : DIMS.ship.w, "h" : DIMS.ship.h },
 			"velocityx"	: velocityx,
 			"color"		: color,
 			"type"		: type
@@ -1127,28 +1005,29 @@ let UTILITYFUNCTIONS = {
 		// let color = [ "#458ade", "#c71bba", "#3d7b8e", "#63b389", "#e6bc78", "#f31a0e" ];
 		let color = [ "red", "rebeccapurple", "orange", "green", "violet", "cornflowerblue" ];
 		let type  = [ 0, 1, 2, 3, 4, 5 ];
-		// let size  = 40;
-		let w  = INVADER_W; // 20; // 40;
-		let h  = INVADER_H; // 20; // 40;
+
 		let Y;
 		let X;
-		let velocityx = 8 ;
-		let xoffset = INVADER_SPACING_X ; // Math.ceil(w/1.2);
-		let yoffset = INVADER_SPACING_Y ; // Math.ceil(w/1.2);
+		let w         = DIMS.invader.w        ;
+		let h         = DIMS.invader.h        ;
+		let velocityx = DIMS.invader.xvel     ;
+		let xoffset   = DIMS.invader.spacingx ;
+		let yoffset   = DIMS.invader.spacingy ;
 
 		for(let row=1; row<=6; row++){
 			// Y = 0 + (row*h) + (row*h)/4 ;
 			Y = 0 + (row*h) + yoffset*(row-1);
 
 			// Offset for the whole row.
-			Y+=20;
+			Y+=h*1;
 
 			for(let col=1; col<=6; col++){
 				// X is the col times the invader height + col times invader height divided by 4.
 				X = ((col-1)*w)  + xoffset*(col-1);
 
 				// Offset for the whole col.
-				X+=80;
+				// X+=80;
+				X+=w;
 
 				UTILITYFUNCTIONS.addAlienInvader( {
 					"pos"		: { "x" : X, "y" : Y },
@@ -1196,13 +1075,20 @@ let UTILITYFUNCTIONS = {
 
 		let moveInvaders=function(){
 			// Change the displayed invader frame, move on x, bounce on y, adjust frameslatency.
+			let moved=false;
+			let framenum=false;
 			for(let i=0; i<ALIENINVADERS.length; i++){
 				// Change the frame if enough frames have passed by.
-				if(ALIENINVADERS[i].frameslatency >= ALIENINVADERS[i].frameslatencymax){
+				// if(ALIENINVADERS[i].frameslatency >= ALIENINVADERS[i].frameslatencymax){
+				if(ALIENINVADERS[i].frameslatency >= DIMS.invader.fmax){
+					moved=true;
 					if     (ALIENINVADERS[i].framenum=="frame2"){ ALIENINVADERS[i].framenum="frame1"; }
 					else if(ALIENINVADERS[i].framenum=="frame1"){ ALIENINVADERS[i].framenum="frame2"; }
 					else                                        { ALIENINVADERS[i].framenum="frame1"; }
+
+					framenum = ALIENINVADERS[i].framenum;
 					ALIENINVADERS[i].frameslatency=0;
+					// ALIENINVADERS[i].frameslatency = DIMS.invader.fmax * -1;
 					// ALIENINVADERS[i].frameslatency=-50;
 
 					// Move the Alien Invader on the X axis.
@@ -1212,14 +1098,20 @@ let UTILITYFUNCTIONS = {
 					ALIENINVADERS[i].pos.x = Math.max( 0, Math.min(ALIENINVADERS[i].pos.x, WIDTH - ALIENINVADERS[i].size.w) );
 
 					// Bounce the Alien Invader on the Y axis.
-					if     (ALIENINVADERS[i].jumpingY == 0){ ALIENINVADERS[i].pos.y += -3; }
-					else if(ALIENINVADERS[i].jumpingY == 1){ ALIENINVADERS[i].pos.y +=  3; }
+					if     (ALIENINVADERS[i].jumpingY == 0){ ALIENINVADERS[i].pos.y -= 2; }
+					else if(ALIENINVADERS[i].jumpingY == 1){ ALIENINVADERS[i].pos.y += 2; }
 					ALIENINVADERS[i].jumpingY = ! ALIENINVADERS[i].jumpingY ;
 				}
 				// Not enough frames passed? Increase frameslatency for this invader.
 				else{
 					ALIENINVADERS[i].frameslatency++;
 				}
+			}
+
+			// Play the movement sound if there was movement.
+			if(moved){
+				if     (framenum=="frame1"){ UTILITYFUNCTIONS.playSound('alien_invader_move1'); }
+				else if(framenum=="frame2"){ UTILITYFUNCTIONS.playSound('alien_invader_move2'); }
 			}
 		};
 
@@ -1261,7 +1153,8 @@ let UTILITYFUNCTIONS = {
 					// Continue the loop.
 
 					// // Move this invader down on y.
-					ALIENINVADERS[i].pos.y += ALIENINVADERS[i].size.w/2 ;
+					ALIENINVADERS[i].pos.y += ALIENINVADERS[i].size.h/2 ;
+					// ALIENINVADERS[i].pos.y += ALIENINVADERS[i].size.h ;
 
 					// Change the x direction.
 					ALIENINVADERS[i].velocityx *= -1 ;
@@ -1344,7 +1237,7 @@ window.onload=function(){
 	//
 	WIDTH          = CANVAS_post.width  ;
 	HEIGHT         = CANVAS_post.height ;
-	BOTTOM_ENDGAME = CANVAS_post.height-60 ;
+	BOTTOM_ENDGAME = CANVAS_post.height-24 ;
 
 	// The non-DOM-attached canvas.
 	CANVAS        = document.createElement("canvas");
@@ -1401,18 +1294,24 @@ window.onload=function(){
 function init(){
 	// DEBUG - Setup the mousemove listener for hovering over the canvas.
 	if(!showCanvasCursorCoords_ON){
-		CANVAS.addEventListener('mousemove', function(evt){
+		CANVAS_post.addEventListener('mousemove', function(evt){
 			let mouseCoordsDiv = DOM.mouseCoordsDiv;
 
 			function getMousePos(canvas, evt) {
 				let rect = canvas.getBoundingClientRect();
+
 				return {
-					x: Math.floor(evt.clientX - rect.left),
-					y: Math.floor(evt.clientY - rect.top )
+					// Only works correctly for a non-CSS stretched canvas.
+					// x: Math.floor(evt.clientX - rect.left),
+					// y: Math.floor(evt.clientY - rect.top )
+
+					// Works correctly for a CSS stretched canvas.
+					x: Math.floor((evt.clientX - rect.left) / (rect.right  - rect.left) * CANVAS_post.width ),
+					y: Math.floor((evt.clientY - rect.top)  / (rect.bottom - rect.top)  * CANVAS_post.height)
 				};
 			}
 
-			let mousePos = getMousePos(CANVAS, evt);
+			let mousePos = getMousePos(CANVAS_post, evt);
 			let message = '(x:' + mousePos.x + ', y:' + mousePos.y + ')';
 			mouseCoordsDiv.innerText = message;
 		}, false);
@@ -1427,8 +1326,8 @@ function init(){
 
 	// Create Player 1.
 	let newPlayer = {
-		"pos"		: { "x" : WIDTH/4 - PLAYERSIZE_SMALL.W, "y" : HEIGHT - PLAYERSIZE_SMALL.H },
-		"size"		: { "w" : PLAYERSIZE_SMALL.W, "h" : PLAYERSIZE_SMALL.H },
+		"pos"		: { "x" : WIDTH/4 - DIMS.player.w, "y" : HEIGHT - DIMS.player.h },
+		"size"		: { "w" : DIMS.player.w, "h" : DIMS.player.h },
 		"control"	: "H",
 		"color"		: "red",
 		"playernum"	: 1
@@ -1437,8 +1336,8 @@ function init(){
 
 	// Create Player 2.
 	// newPlayer = {
-		// "pos"		: { "x" : WIDTH-WIDTH/4 - PLAYERSIZE_SMALL.W, "y" : HEIGHT - PLAYERSIZE_SMALL.H },
-	// 	"size"		: { "w" : PLAYERSIZE_SMALL.W, "h" : PLAYERSIZE_SMALL.H },
+	// 	"pos"		: { "x" : WIDTH-WIDTH/4 - DIMS.player.w, "y" : HEIGHT - DIMS.player.h },
+	// 	"size"		: { "w" : DIMS.player.w, "h" : DIMS.player.h },
 	// 	"control"	: "H",
 	// 	"color"		: "green",
 	// 	"playernum"	: 2
@@ -1499,7 +1398,9 @@ function main(){
 	};
 
 	// Activate the initial game loop.
-	updateGameDisplay();
+	// window.requestAnimationFrame(updateGameDisplay);
+	// setTimeout(updateGameDisplay, 1000 / FPS);
+	STO_ID = setTimeout(function(){ RAF_ID = window.requestAnimationFrame(updateGameDisplay); }, 1000 / FPS);
 }
 
 function updatePositions(){
@@ -1531,25 +1432,25 @@ function drawFrame(){
 	// Erase the canvas frame.
 	CONTEXT.fillStyle = "black";
 	CONTEXT.fillRect(0, 0, WIDTH, HEIGHT);
+	// CONTEXT.clearRect(0,0, CANVAS.width, CANVAS.height);
 
 	// Draw background stars.
 	if     (STARS.flag_useStarBackground1){ STARS.drawStarBackground1(); }
 	else if(STARS.flag_useStarBackground2){ STARS.drawStarBackground2(); }
 
-	// Draw the line where you lose if the Alien Invaders reach it.
-	// Line 1
+	// Line 1 - line for the top of barriers.
 	CONTEXT.beginPath();
 	CONTEXT.moveTo( 0, HEIGHT-35 ); CONTEXT.lineTo( WIDTH, HEIGHT-35);
 	CONTEXT.closePath();
 	CONTEXT.strokeStyle = 'blue'; CONTEXT.lineWidth = 2; CONTEXT.stroke();
 
-	// Line2
+	// Line2 - line for the bottom of barriers.
 	CONTEXT.beginPath();
 	CONTEXT.moveTo( 0, HEIGHT-40 ); CONTEXT.lineTo( WIDTH, HEIGHT-40 );
 	CONTEXT.closePath();
 	CONTEXT.strokeStyle = 'gray'; CONTEXT.lineWidth = 2; CONTEXT.stroke();
 
-	// Line3
+	// Line3 - line where you lose if the Alien Invaders reach it.
 	CONTEXT.beginPath();
 	CONTEXT.moveTo( 0, BOTTOM_ENDGAME ); CONTEXT.lineTo( WIDTH, BOTTOM_ENDGAME);
 	CONTEXT.closePath();
@@ -1583,6 +1484,9 @@ function drawFrame(){
 	if(PLAYERS[1]){ DOM.p2Accurracy.innerHTML = "SHOTS: "+PLAYERS[1].shotsMade+"/"+PLAYERS[1].shotsFired+" ("+PLAYERS[1].accuracy+")"; }
 
 	// Draw from the non-DOM-attached canvas to the real canvas.
+	// CONTEXT_post.fillStyle = "black";
+	// CONTEXT_post.fillRect(0, 0, WIDTH, HEIGHT);
+	CONTEXT_post.clearRect(0,0, CANVAS.width, CANVAS.height);
 	CONTEXT_post.drawImage(CANVAS, 0, 0);
 }
 
@@ -1620,14 +1524,14 @@ function Player(x, y, width, height, control, color, playernum) {
 	this.updatePosition = function() {
 		// Check if a keycode is contained within KEYSTATE.
 		if(this.playernum==1 && this.control=='H'){
-			if (KEYSTATE[KEYBOARD_CONTROLS.P1.LEFT.CODE]) { this.x -= 7; }
-			if (KEYSTATE[KEYBOARD_CONTROLS.P1.RIGHT.CODE]){ this.x += 7; }
+			if (KEYSTATE[KEYBOARD_CONTROLS.P1.LEFT.CODE]) { this.x -= DIMS.player.xvel; }
+			if (KEYSTATE[KEYBOARD_CONTROLS.P1.RIGHT.CODE]){ this.x += DIMS.player.xvel; }
 			if (KEYSTATE[KEYBOARD_CONTROLS.P1.FIRE.CODE]) { this.fire(); }
 		}
 
 		if(this.playernum==2 && this.control=='H'){
-			if (KEYSTATE[KEYBOARD_CONTROLS.P2.LEFT.CODE]) { this.x -= 7; }
-			if (KEYSTATE[KEYBOARD_CONTROLS.P2.RIGHT.CODE]){ this.x += 7; }
+			if (KEYSTATE[KEYBOARD_CONTROLS.P2.LEFT.CODE]) { this.x -= DIMS.player.xvel; }
+			if (KEYSTATE[KEYBOARD_CONTROLS.P2.RIGHT.CODE]){ this.x += DIMS.player.xvel; }
 			if (KEYSTATE[KEYBOARD_CONTROLS.P2.FIRE.CODE]) { this.fire(); }
 		}
 
@@ -1907,14 +1811,14 @@ function Projectile(pos, size, velocityy, color, origin){
 
 function AlienShip(pos, size, velocityx, color, type){
 	// console.log("New Alien Ship created with values: ", pos, size, velocityx, color, type);
-	this.pos = pos ;				// Position of Alien Ship ( {"x":"", "y":""}
-	this.size = size;				// Dimensions of Alien Ship ( {"w":"", "h":""}
-	this.velocityx = velocityx ;	// Has X velocity.
-	this.color = color ;			// Has color.
-	this.type = type ;				// Has type. // Type (0-4);
-	this.removeThis = false;
-	this.shotsFired = 0;
-	this.jumpingY = 0;
+	this.pos        = pos       ; // Position of Alien Ship ( {"x":"", "y":""}
+	this.size       = size      ; // Dimensions of Alien Ship ( {"w":"", "h":""}
+	this.velocityx  = velocityx ; // Has X velocity.
+	this.color      = color     ; // Has color.
+	this.type       = type      ; // Has type. // Type (0-4);
+	this.removeThis = false     ;
+	this.shotsFired = 0         ;
+	this.jumpingY   = 0         ;
 
 	this.fire = function(){
 		// An Alien Ship has fired a shot! Configure a new projectile!
@@ -1925,8 +1829,8 @@ function AlienShip(pos, size, velocityx, color, type){
 
 		let newProjectile = {
 			"pos"		: { "x" : x, "y" : y },
-			"size"		: { "w" : 15, "h" : 20 },
-			"velocityy"	: -5,
+			"size"		: { "w" : DIMS.shot.w, "h" : DIMS.shot.h },
+			"velocityy"	: -4,
 			"color" 	: 'green',
 			"origin"	: "AS"
 		};
@@ -1995,7 +1899,7 @@ function AlienInvader(pos, size, velocityx, color, type){
 	this.hidden           = false     ; // Hidden happens when this Alien Invader is not visible... hard mode!!
 	this.framenum         = "frame1"  ; //
 	this.frameslatency    = 0;
-	this.frameslatencymax = 5;
+	// this.frameslatencymax = DIMS.invader.fmax ; // 5;
 
 	this.fire = function(){
 		// An Alien Invader has fired a shot! Configure a new projectile!
@@ -2005,8 +1909,8 @@ function AlienInvader(pos, size, velocityx, color, type){
 		let y = this.pos.y + this.size.h;
 		let newProjectile = {
 			"pos"		: { "x" : x , "y" : y },
-			"size"		: { "w" : 15, "h" : 20 }, // 15 , 20
-			"velocityy"	: -5,
+			"size"		: { "w" : DIMS.shot.w, "h" : DIMS.shot.h }, // 15 , 20
+			"velocityy"	: -4,
 			"color" 	: 'darkgoldenrod',
 			"origin"	: "AI"
 		};

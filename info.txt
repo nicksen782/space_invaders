@@ -1,3 +1,12 @@
+There are lots of global variables. They should be stored in a global object.
+
+
+
+Player 1
+Player 2
+Alien Invaders
+Alien Ship (at the top)
+==================================
 SPACE INVADERS!
 
 V1
@@ -54,7 +63,7 @@ V3
 Constants:
 	Canvas width
 	Canvas height.
-	Named constants for keyboard controls.
+	Named constanclearTimeout(STO_ID);s for keyboard controls.
 
 Game elements
 	Canvas
@@ -94,3 +103,7 @@ Player Object
 	fire
 	updatePosition
 	draw
+
+
+
+http://atomicrobotdesign.com/blog/web-development/how-to-use-sprite-sheets-with-html5-canvas/
