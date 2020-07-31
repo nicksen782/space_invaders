@@ -61,24 +61,45 @@
 			<label <?php echo $debugIsOn ? "" : 'style="display:none;"'; ?> ><input id="chk_debug" type="checkbox" <?php echo $debugIsOn ? "checked" : ""; ?> >Update the debug info.<br></label>
 			<?php echo $debugIsOn ? "<br>" : ''; ?>
 
-			<input type="button" onclick="FUNCS.pause();" value="FUNCS.pause();">
-			<span id="pauseState">--</span>
-			<br>
+			<input type="button" onclick="FUNCS.pause();" value="FUNCS.pause();"><span id="pauseState"> --</span><br>
+
+			<!-- <input type="button" onclick="FUNCS.addPlayer(1);"                                     value="FUNCS.addPlayer(1);"> -->
+			<!-- <input type="button" onclick="FUNCS.addPlayer(2);"                                     value="FUNCS.addPlayer(2);"> -->
+			<!-- <input type="button" onclick="FUNCS.createInvaderGrid();"                              value="FUNCS.createInvaderGrid();"> -->
+			<input type="button" onclick="DEBUG.demoEntities();" value="DEMO ENTITIES">
+			<input type="button" onclick="FUNCS.startGameFromBeginning();" value="RESET">
+			<input type="button" onclick="DEBUG.lowerInvaders();" value="LOWER INVADERS">
+			<input type="button" onclick="DEBUG.raiseInvaders();" value="RAISE INVADERS">
 			<br>
 
-			<input type="button" onclick="DEBUG.drawPreCanvasToPostCanvas();" value="DEBUG.drawPreCanvasToPostCanvas();"><br>
+			<!-- <input type="button" onclick="DEBUG.drawPreCanvasToPostCanvas();" value="DEBUG.drawPreCanvasToPostCanvas();"><br> -->
+			<!-- <input type="button" onclick="DEBUG.drawAllGraphics();"           value="DEBUG.drawAllGraphics();"><br> -->
+			<!-- <br> -->
+
+			<span id="currentFPS">--</span>
+			<!-- <br> -->
+			<input type="button" onclick="DEBUG.adjustFPS(-1, 0);"            value="Decrease FPS by 1">
+			<input type="button" onclick="DEBUG.adjustFPS(1 , 0);"            value="Increase FPS by 1">
+			<select id="fps_select" onchange="if(this.value){ DEBUG.adjustFPS(0 , this.value ); }">
+				<option value="">...Choose</option>
+				<option value="1" >Set to 1 FPS</option>
+				<option value="2" >Set to 2 FPS</option>
+				<option value="3" >Set to 3 FPS</option>
+				<option value="4" >Set to 4 FPS</option>
+				<option value="5" >Set to 5 FPS</option>
+				<option value="10">Set to 10 FPS</option>
+				<option value="20">Set to 20 FPS</option>
+				<option value="30">Set to 30 FPS</option>
+				<option value="40">Set to 40 FPS</option>
+				<option value="50">Set to 50 FPS</option>
+				<option value="60">Set to 60 FPS</option>
+			</select>
 			<br>
 
-			<input type="button" onclick="DEBUG.drawAllGraphics();" value="DEBUG.drawAllGraphics();"><br>
-			<br>
-
-			<input type="button" onclick="FUNCS.addPlayer(1);" value="FUNCS.addPlayer(1);">
-			<input type="button" onclick="GAMEVARS.PLAYERS[0].draw();" value="GAMEVARS.PLAYERS[0].draw();">
-			<br>
-
-			<input type="button" onclick="FUNCS.addPlayer(2);" value="FUNCS.addPlayer(2);">
-			<input type="button" onclick="GAMEVARS.PLAYERS[1].draw();" value="GAMEVARS.PLAYERS[1].draw();">
-			<br>
+			<!-- Move grid right -->
+			<!-- Move grid left -->
+			<!-- Move grid down -->
+			<!-- Move grid up -->
 
 			<div id="debug_output">
 			</div>

@@ -1,3 +1,9 @@
+Still need to better handle gameover.
+	Make the invaders come down crashing!
+
+Need title screens, menus.
+
+
 ============================
 VERSION 4.
 

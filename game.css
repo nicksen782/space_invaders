@@ -158,3 +158,20 @@ div#canvas1_div {
     position: relative;
     height: 560px;
 }
+
+
+
+.debugTable1 {
+    font-size: 12px;
+    display: inline-block;
+    border: 1px solid black;
+    margin: 2px;
+    background-color: #d8d8b6;
+    vertical-align: top;
+    color: black;
+}
+.debugTable1 caption{font-weight: bold;text-decoration: underline;background-color: #8c8c5b;/* border: 1px solid black; */display: inline-block;text-align: center;}
+.debugTable1 th{ text-decoration:underline; }
+.textCenter {
+    text-align: center;
+}

@@ -9,29 +9,44 @@ window.onload=function(){
 // Holds the rendered images from the source sprite sheet.
 let IMGCACHE={};
 
+// Holds game variables.
 let GAMEVARS = {
 	// Gameplay variables.
-	invader_spacing_x  : 0 ,
-	invader_spacing_y  : 0 ,
-	invader_xvel       : 0 ,
-	invader_shot1_vvel : 0 ,
-	invader_fmax       : 0 ,
-	ship1_xvel         : 0 ,
-	ship1_shot1_vvel   : 0 ,
-	player_xvel        : 0 ,
-	player_shot1_vvel  : 0 ,
+	invader_velx       : 0 , // INVADER x speed.
+	invader_vely       : 0 , // INVADER y speed.
+	invader_spacing_x  : 0 , // INVADER x spacing.
+	invader_spacing_y  : 0 , // INVADER y spacing.
+	invader_shot1_vely : 0 , // INVADER shot (y) speed.
+	invader_fmax       : 0 , // INVADER frames before changing.
+	ship1_velx         : 0 , // SHIP x speed.
+	ship1_shot1_vely   : 0 , // SHIP shot (y) speed.
+	player_xvel        : 0 , // PLAYER x speed.
+	player_shot1_vely  : 0 , // PLAYER shot (y) speed.
 
 	//
-	paused       : false ,
-	audiocanplay : false ,
-	pagevisible  : true  ,
-	raf_id       : null  ,
+	paused            : false   ,
+	audiocanplay      : false   ,
+	pagevisible       : true    ,
+	raf_id            : null    ,
+	fps               : 30      ,
+	msPerFrame        : 1000/30 ,
+	last_raf_tstamp   : 0       ,
+	gameover_bottom   : 190     ,
+	maxShots_PLAYERS  : 1       ,
+	maxShots_SHIPS    : 5       ,
+	maxShots_INVADERS : 1       ,
+	shotCounts        : {}      , // Cached counts of shot counts grouped by origin.
 
-	//
+	// State management
+	gamestate_main : 0 ,
+	gamestate_sub1 : 0 ,
+
+	// Arrays containing all the entities.
 	PLAYERS  : [] ,
 	SHOTS    : [] ,
 	SHIPS    : [] ,
 	INVADERS : [] ,
+	BARRIERS : [] ,
 
 	// Keyboard controls.
 	KEYSTATE : {},
@@ -49,33 +64,6 @@ let GAMEVARS = {
 		}
 	},
 
-	//
-	gamestate_main : 0 ,
-	gamestate_sub1 : 0 ,
-
-	// Resets gameplay variables to the default state.
-	reset_game_consts : function(){
-		// Gameplay variables.
-		GAMEVARS.invader_spacing_x  =  12 ;
-		GAMEVARS.invader_spacing_y  =  8  ;
-		GAMEVARS.invader_xvel       =  2  ;
-		GAMEVARS.invader_shot1_vvel = -4  ;
-		GAMEVARS.invader_fmax       = 15  ;
-		GAMEVARS.ship1_xvel         =  3  ;
-		GAMEVARS.ship1_shot1_vvel   = -4  ;
-		GAMEVARS.player_xvel        =  4  ;
-		GAMEVARS.player_shot1_vvel  =  6  ;
-
-		// Arrays containing entities.
-		GAMEVARS.PLAYERS  = [] ;
-		GAMEVARS.SHOTS    = [] ;
-		GAMEVARS.SHIPS    = [] ;
-		GAMEVARS.INVADERS = [] ;
-
-		//
-		GAMEVARS.KEYSTATE = {} ;
-	},
-
 	// Sound effects
 	sounds         : {
 		"player_shoot"        : { "src":"sounds/shoot5.mp3", "elem":undefined, vol:0.0075*(3+2) } ,
@@ -87,11 +75,49 @@ let GAMEVARS = {
 		"alien_invader_move1" : { "src":"sounds/move1.mp3" , "elem":undefined, vol:0.0750*(4+2) } ,
 		"alien_invader_move2" : { "src":"sounds/move2.mp3" , "elem":undefined, vol:0.0750*(4+2) } ,
 	},
+
+	// Resets gameplay variables to the default state.
+	reset_game_consts : function(){
+		let w = IMGCACHE["invader1"][0].width  ;
+		let h = IMGCACHE["invader1"][0].height ;
+
+		// Gameplay variables.
+		GAMEVARS.invader_velx       =  Math.ceil(w/4) ;
+		GAMEVARS.invader_vely       =  Math.ceil(h/2) ;
+		GAMEVARS.invader_spacing_x  =  Math.ceil(w/4) ;
+		GAMEVARS.invader_spacing_y  =  Math.ceil(h/2) ;
+		GAMEVARS.invader_shot1_vely = -4  ;
+		GAMEVARS.invader_fmax       = 15  ;
+		GAMEVARS.ship1_velx         =  3  ;
+		GAMEVARS.ship1_shot1_vely   = -4  ;
+		GAMEVARS.player_xvel        =  4  ;
+		GAMEVARS.player_shot1_vely  =  6  ;
+
+		// Arrays containing entities.
+		GAMEVARS.PLAYERS  = [] ;
+		GAMEVARS.SHOTS    = [] ;
+		GAMEVARS.SHIPS    = [] ;
+		GAMEVARS.INVADERS = [] ;
+		GAMEVARS.BARRIERS = [] ;
+
+		//
+		GAMEVARS.KEYSTATE = {} ;
+
+		GAMEVARS.paused =  false ;
+	},
+
 };
 
 // Game functions.
 let FUNCS = {
+	//
 	startGameFromBeginning : function(){
+		// Cancel the current animation frame.
+		if(GAMEVARS.raf_id != null){
+			window.cancelAnimationFrame(GAMEVARS.raf_id);
+		}
+		GAMEVARS.raf_id = null;
+
 		// Reset game vars.
 		GAMEVARS.reset_game_consts();
 
@@ -101,45 +127,59 @@ let FUNCS = {
 		// Request animation frame.
 		GAMEVARS.raf_id = window.requestAnimationFrame(FUNCS.gameloop);
 	},
+
+	// STATE MANAGEMENT
+	// ****************
+
+	//
 	gameover : function(){
-		// Reset game vars.
-		// GAMEVARS.reset_game_consts();
+		// Reset game.
+		FUNCS.startGameFromBeginning();
+
+		// DEBUG
+		DEBUG.demoEntities();
 
 		// Handle state.
+		//
 	},
 
-	addPlayer(playernum){
+	// SINGLE-ENTITY ADDITIONS
+	// ***********************
+
+	// Adds a new player.
+	addPlayer : function(playernum){
 		// Make sure that this playernum doesn't already exist.
 		let matches = GAMEVARS.PLAYERS.filter(function(d,i,a){ return d.playernum==playernum; });
-		if(matches.length){
-			console.log("PLAYERNUM IS ALREADY IN USE.");
-			return;
-		}
+		if(matches.length){ console.log("PLAYERNUM IS ALREADY IN USE."); return; }
 
 		let newPlayer;
-
-		let width  = IMGCACHE["player"][0].width;
-		let height = IMGCACHE["player"][0].width;
+		let width  ;
+		let height ;
 
 		if    (playernum==1){
+			let width  = IMGCACHE["player"][0].width;
+			let height = IMGCACHE["player"][0].height;
 			newPlayer = {
 				"x"         : DOM.mainCanvas.width/4 - width ,
-				"y"         : DOM.mainCanvas.height  - height ,
+				"y"         : DOM.mainCanvas.height  - height-2 ,
 				"control"  	: "H",
-				"playernum"	: 1
+				"playernum"	: 1,
 			};
 		}
 		else if(playernum==2){
+			let width  = IMGCACHE["player"][0].width;
+			let height = IMGCACHE["player"][0].height;
 			newPlayer = {
-				"x"         : DOM.mainCanvas.width- DOM.mainCanvas.width/4 - width ,
-				"y"         : DOM.mainCanvas.height  - height ,
-				"control"  	: "H",
-				"playernum"	: 2
+				"x"         : DOM.mainCanvas.width- DOM.mainCanvas.width/4 - (width) ,
+				"y"         : DOM.mainCanvas.height  - height-2 ,
+				"control"   : "H",
+				"playernum" : 2,
 			};
 		}
 		else{ console.log("INVALID PLAYERNUM"); return; }
 
-		//
+		// Add the player.
+		// console.log("adding player");
 		GAMEVARS.PLAYERS.push (
 			new Player(
 				newPlayer.x        ,
@@ -150,6 +190,175 @@ let FUNCS = {
 		);
 	},
 
+	// Add invader. (Just one.)
+	addAlienInvader : function(data){
+		GAMEVARS.INVADERS.push (
+			new Invader(
+				data.x   ,
+				data.y   ,
+				data.type,
+			)
+		);
+	},
+
+	//
+	addShot : function(shot){
+		GAMEVARS.SHOTS.push (
+			new Shot(
+				shot.x   ,
+				shot.y   ,
+				shot.origin,
+			)
+		);
+	},
+
+	//
+	createInvaderGrid : function(){
+		// Invader grid is 6x6 of invaders.
+		// Each row has only one type of invader.
+		// All invaders move together (X and Y.)
+		// All invaders share the same dimensions.
+
+		// These will be used as keys to GAMEVARS.IMGCACHE.
+		let types = [ "invader1", "invader2", "invader3", "invader4", "invader5", "invader6" ];
+		let w = IMGCACHE["invader1"][0].width  ;
+		let h = IMGCACHE["invader1"][0].height ;
+		let x = w;
+		let y = 0 ;
+
+		//
+		for(let row=1; row<=6; row++){
+			y = 0 + (row*h) + GAMEVARS.invader_spacing_y*(row-1);
+
+			// Offset for the whole row.
+			y+=(h*1)-h/2;
+
+			for(let col=1; col<=6; col++){
+				// X is the col times the invader height + col times invader height divided by 4.
+				x = ((col-1)*w)  + GAMEVARS.invader_spacing_x*(col-1);
+
+				// Offset for the whole col.
+				x+=w/1.5;
+
+				FUNCS.addAlienInvader( {
+					"x"    : x ,
+					"y"    : y ,
+					"type" : types[row-1]
+				});
+
+			}
+
+		}
+
+	},
+
+	//
+	moveInvaderGrid : function(){
+		// Invaders move together.
+		// Check the left and right x bounds.
+		// If any invader reaches the bounds then they need to move down and change directions.
+		// If any invader reaches the bottom then it is game over.
+
+		// Determine if a boundary was reached.
+		let w = IMGCACHE["invader1"][0].width  ;
+		let h = IMGCACHE["invader1"][0].height ;
+		let boundaryReached;
+		for( let invader of GAMEVARS.INVADERS ){
+			if(invader.isHit || invader.removeThis){ continue; }
+			// Depending on the direction, determine if a boundary was reached.
+			if     (invader.dir=="L"){ boundaryReached = (invader.x <= 0 + w / 2);                             }
+			else if(invader.dir=="R"){ boundaryReached = (invader.x      + w) >= DOM.mainCanvas.width - w / 2; }
+
+			// Stop looking if any invader reached a boundary.
+			if(boundaryReached){
+				// console.log("boundary!");
+				break;
+			}
+		}
+
+		// Was a boundary reached?
+		if(boundaryReached){
+			// Check all invaders to see if they reached the bottom.
+			let bottomReached=false;
+			for( let invader of GAMEVARS.INVADERS ){
+				//
+				if(invader.isHit || invader.removeThis){ continue; }
+
+				//
+				if(invader.y+h >= GAMEVARS.gameover_bottom){ bottomReached=true; }
+			}
+
+			// changeDirectionsOrLose();
+			if(bottomReached){
+				// GAME OVER!
+				FUNCS.gameover();
+			}
+			else{
+				// Game continues
+
+				// Change the x velocity.
+				GAMEVARS.invader_velx *= -1;
+
+				for( let invader of GAMEVARS.INVADERS ){
+					if(invader.isHit || invader.removeThis){ continue; }
+
+					// Change the direction.
+					if     (invader.dir=="L"){ invader.dir="R"; }
+					else if(invader.dir=="R"){ invader.dir="L"; }
+
+					// Reset the frameslatency to GAMEVARS.invader_fmax * -1.
+					invader.frameslatency= Math.ceil( (GAMEVARS.invader_fmax * -1) / 2 );
+
+					// Move the invader down.
+					invader.y += Math.ceil(h/2);
+				}
+			}
+		}
+		// Move the invaders group.
+		else                  {
+			// moveInvaders();
+			let moved    = false;
+			let framenum = null;
+
+			for(let i=0; i<GAMEVARS.INVADERS.length; i++){
+				if(GAMEVARS.INVADERS[i].isHit || GAMEVARS.INVADERS[i].removeThis){ continue; }
+
+				// Change the frame if enough frames have passed by.
+				if(GAMEVARS.INVADERS[i].frameslatency >= GAMEVARS.invader_fmax){
+					moved=true;
+					if     (GAMEVARS.INVADERS[i].framenum==0){ GAMEVARS.INVADERS[i].framenum=1; }
+					else if(GAMEVARS.INVADERS[i].framenum==1){ GAMEVARS.INVADERS[i].framenum=0; }
+					else                                     { GAMEVARS.INVADERS[i].framenum=0; }
+
+					framenum = GAMEVARS.INVADERS[i].framenum;
+					GAMEVARS.INVADERS[i].frameslatency=0;
+
+					// Move the Alien Invader on the X axis.
+					GAMEVARS.INVADERS[i].x += GAMEVARS.invader_velx;
+
+					// Make sure that the new x and y are valid and the Alien Invader cannot go out of bounds.
+					GAMEVARS.INVADERS[i].x = Math.max( 0, Math.min(GAMEVARS.INVADERS[i].x, DOM.mainCanvas.width - w) );
+
+					// Bounce the Alien Invader on the Y axis.
+					if     (GAMEVARS.INVADERS[i].jumpingY == 0){ GAMEVARS.INVADERS[i].y -= 1; }
+					else if(GAMEVARS.INVADERS[i].jumpingY == 1){ GAMEVARS.INVADERS[i].y += 1; }
+					GAMEVARS.INVADERS[i].jumpingY = ! GAMEVARS.INVADERS[i].jumpingY ;
+				}
+				// Not enough frames passed? Increase frameslatency for this invader.
+				else{
+					GAMEVARS.INVADERS[i].frameslatency++;
+				}
+			}
+
+			// Play the movement sound if there was movement.
+			// if(moved){
+				// if     (framenum==0){ FUNCS.playSound('alien_invader_move1'); }
+				// else if(framenum==1){ FUNCS.playSound('alien_invader_move2'); }
+			// }
+		}
+	},
+
+	// Pauses the game.
 	pause : function(){
 		if(GAMEVARS.raf_id==null){
 			// Request animation frame.
@@ -161,13 +370,47 @@ let FUNCS = {
 		}
 	},
 
-	gameloop : function(){
+	// MAIN GAME LOOP
+	// **************
+
+	// Determines if enough time has occurred for the next frame to be processed.
+	allowFrame : function(tstamp){
+		let msSinceLastFrame = tstamp - GAMEVARS.last_raf_tstamp;
+		let allowThisFrame = (msSinceLastFrame > GAMEVARS.msPerFrame ? true : false);
+		if(!allowThisFrame){ return false ; }
+		else               { return true  ; }
+	},
+
+	//
+	countProjectiles        : function(){
+		let projectiles_counts = {};
+		let origin;
+
+		for(let i=0; i<GAMEVARS.SHOTS.length; i++){
+			origin=GAMEVARS.SHOTS[i].origin;
+			if(undefined == projectiles_counts[origin]){ projectiles_counts[origin]=0; }
+			projectiles_counts[origin]++;
+		}
+
+		// FUNCS.countProjectiles()
+		GAMEVARS.shotCounts = projectiles_counts ;
+	},
+
+	//
+	gameloop : function(tstamp){
 		// If NOT paused then request an animation frame and repeat the set Timeout.
+
 		if(!GAMEVARS.paused && GAMEVARS.pagevisible){
-			// (KIND-OF DEBUG) Toggle the paused indicator.
-			let pauseState = DOM.pauseState.innerText;
-			if     (pauseState=="--"){ DOM.pauseState.innerText = "==" ;  }
-			else if(pauseState=="=="){ DOM.pauseState.innerText = "--" ;  }
+			// Can this frame be processed?
+			if( ! FUNCS.allowFrame(tstamp) ) {
+				// Schedule next animation frame.
+				GAMEVARS.raf_id = window.requestAnimationFrame(FUNCS.gameloop);
+				// console.log("SKIP");
+				return;
+			}
+
+			// Record the last timestamp from requestAnimationFrame.
+			GAMEVARS.last_raf_tstamp = tstamp;
 
 			// Clear the canvas to ready it for a new screen.
 			DOM.preMainCanvas_ctx.fillStyle = "black";
@@ -175,7 +418,34 @@ let FUNCS = {
 			// DOM.mainCanvas_ctx.fillStyle = "black";
 			// DOM.mainCanvas_ctx.fillRect(0, 0, DOM.mainCanvas.width, DOM.mainCanvas.height);
 
-			// Update PLAYER positions. (queries the current input.)
+			// Remove expired shots.
+			GAMEVARS.SHOTS   = GAMEVARS.SHOTS.filter  ( function (value) { return ! value.removeThis; } );
+
+			// Update the cached counts of shots. (GAMEVARS.shotCounts)
+			FUNCS.countProjectiles();
+
+			// Draw line - lose line.
+			DOM.preMainCanvas_ctx.beginPath();
+			DOM.preMainCanvas_ctx.moveTo( 0, GAMEVARS.gameover_bottom );
+			DOM.preMainCanvas_ctx.lineTo( DOM.mainCanvas.width, GAMEVARS.gameover_bottom);
+			DOM.preMainCanvas_ctx.closePath();
+			DOM.preMainCanvas_ctx.strokeStyle = 'yellow';
+			DOM.preMainCanvas_ctx.lineWidth = 1;
+			DOM.preMainCanvas_ctx.stroke();
+
+			// Draw line - bottom line.
+			DOM.preMainCanvas_ctx.beginPath();
+			DOM.preMainCanvas_ctx.moveTo( 0, DOM.mainCanvas.height-1 );
+			DOM.preMainCanvas_ctx.lineTo( DOM.mainCanvas.width, DOM.mainCanvas.height-1);
+			DOM.preMainCanvas_ctx.closePath();
+			DOM.preMainCanvas_ctx.strokeStyle = 'brown';
+			DOM.preMainCanvas_ctx.lineWidth = 1;
+			DOM.preMainCanvas_ctx.stroke();
+
+			// Handle creating enemy SHOTS.
+			//
+
+			// Update PLAYER positions. (queries the current input too.)
 			for(let i=0; i<GAMEVARS.PLAYERS.length; i++){
 				GAMEVARS.PLAYERS[i].updatePosition();
 				GAMEVARS.PLAYERS[i].draw();
@@ -183,14 +453,46 @@ let FUNCS = {
 
 			// Update SHOTS positions
 			for(let i=0; i<GAMEVARS.SHOTS.length; i++){
-				// GAMEVARS.SHOTS[i].updatePosition();
-				// GAMEVARS.SHIPS[i].draw();
+				GAMEVARS.SHOTS[i].updatePosition();
+				GAMEVARS.SHOTS[i].draw();
 			}
 
 			// Update SHIPS positions
 			for(let i=0; i<GAMEVARS.SHIPS.length; i++){
 				// GAMEVARS.SHIPS[i].updatePosition();
 				// GAMEVARS.SHIPS[i].draw();
+			}
+
+			// Update INVADERS positions
+			FUNCS.moveInvaderGrid();
+			for(let i=0; i<GAMEVARS.INVADERS.length; i++){
+				if(GAMEVARS.INVADERS[i].removeThis){ continue; }
+
+				if(GAMEVARS.INVADERS[i].isHit){
+					GAMEVARS.INVADERS[i].draw_explode();
+					GAMEVARS.INVADERS[i].draw();
+				}
+				else{
+					GAMEVARS.INVADERS[i].draw();
+				}
+
+			}
+
+			// Update ALL SHOTS
+			for(let i=0; i<GAMEVARS.SHOTS.length; i++){
+				// Skip shots that are to be removed.
+				if(GAMEVARS.SHOTS[i].removeThis){ console.log("skip shot"); continue; }
+
+				//
+				GAMEVARS.SHOTS[i].updatePosition();
+				GAMEVARS.SHOTS[i].draw();
+			}
+
+			// Update the debug data.
+			if(DOM.chk_debug.checked){
+				// Update all displayed debug data.
+				// DEBUG.updateDebugData();
+				window.requestAnimationFrame(DEBUG.updateDebugData);
 			}
 
 			// Update the output canvas.
@@ -216,6 +518,9 @@ let LOADER = {
 	init                             : function(){
 		// Populate the DOM cache.
 		LOADER.populateDOM_cache();
+
+		//
+		DOM.currentFPS.innerText="FPS: " + GAMEVARS.fps + " ("+GAMEVARS.msPerFrame.toFixed(2)+" ms)";
 
 		// Load the graphics.
 		LOADER.loadGraphics().then(
@@ -280,7 +585,9 @@ let LOADER = {
 		//
 		DOM.mainCanvas = document.getElementById("mainCanvas") ;
 		DOM.requestUserInteraction = document.getElementById("requestUserInteraction") ;
-		DOM.pauseState = document.getElementById("pauseState")
+		DOM.pauseState = document.getElementById("pauseState");
+		DOM.currentFPS = document.getElementById("currentFPS");
+		DOM.fps_select = document.getElementById("fps_select");
 
 		// DEBUG
 		DOM.chk_debug      = document.getElementById('chk_debug')      ;
@@ -324,13 +631,13 @@ let LOADER = {
 				"player"   : [ { "x":8, "y":336, "w":32, "h":24, "nW":24, "nH":16 } ],
 
 				// Projectiles
-				"shot1"    : [ { "x":22, "y":304, "w":4, "h":16, "nW":4, "nH":16 } ],
+				"shot1"    : [ { "x":22, "y":304, "w":4, "h":16, "nW":2, "nH":8 } ],
 
 				// Barrier
 				"barrier"  : [ { "x":8, "y":256, "w":32, "h":40, "nW":32, "nH":40 } ],
 
 				// Hits
-				"hit1"     : [ { "x":56, "y":256, "w":32, "h":24, "nW":24, "nH":16 }, { "x":56, "y":288, "w":32, "h":24, "nW":24, "nH":16 } ],
+				"hit1"     : [ { "x":56, "y":256, "w":32, "h":24, "nW":32, "nH":16 }, { "x":56, "y":288, "w":32, "h":24, "nW":32, "nH":16 } ],
 			};
 
 			// Holds the sprite sheet image.
@@ -521,6 +828,8 @@ let DEBUG = {
 	//
 	showCanvasCursorCoords : true,
 	getCanvasMousePosition : function(evt){
+		if(!DOM.chk_debug.checked){ return; }
+
 		let mouseCoordsDiv = DOM.mouseCoordsDiv;
 
 		let getMousePos = function(canvas) {
@@ -572,6 +881,323 @@ let DEBUG = {
 		DOM.mainCanvas_ctx.drawImage(DOM.preMainCanvas, 0, 0);
 	},
 
+	// Adjust the FPS.
+	adjustFPS : function(dir, newFPS=30){
+		// The values may come in as text. Fix it here.
+		dir    = parseInt(dir   , 10) ;
+		newFPS = parseInt(newFPS, 10) ;
+
+		// Directly set?
+		if(dir == 0){
+			GAMEVARS.fps = newFPS ;
+			GAMEVARS.msPerFrame = 1000 / GAMEVARS.fps ;
+		}
+
+		// Raise up by 1?
+		else if(dir == 1){
+			if(GAMEVARS.fps + 1 <= 60){
+				GAMEVARS.fps = GAMEVARS.fps + 1 ;
+				GAMEVARS.msPerFrame = 1000 / GAMEVARS.fps ;
+			}
+		}
+
+		// Lower down by 1?
+		else if(dir == -1){
+			if(GAMEVARS.fps - 1 > 0){
+				GAMEVARS.fps = GAMEVARS.fps - 1 ;
+				GAMEVARS.msPerFrame = 1000 / GAMEVARS.fps ;
+			}
+		}
+
+		// Update the displayed FPS.
+		if(dir!=0){ DOM.fps_select.value=""; }
+		DOM.currentFPS.innerText="FPS: " + GAMEVARS.fps + " ("+GAMEVARS.msPerFrame.toFixed(2)+" ms)";
+	},
+
+	//
+	updateDebugData : function(){
+		let createTable_type1 = function (headers=[], data={}, caption="", width=400){
+			// Create the table.
+			let table = document.createElement("table");
+			table.style.width=width+"px";
+
+			let captionElem = document.createElement("caption");
+			captionElem.style.width=(width-2)+"px";
+			captionElem.innerText=caption;
+			table.appendChild(captionElem);
+
+			// One row for each var.
+			headers.forEach(function(d,i,a){
+				let row = table.insertRow(table.rows.length);
+				let cell_th = document.createElement("th");
+				let cell_td = document.createElement("td");
+
+				cell_th.innerText = d;
+				cell_td.innerText = data[d];
+
+				row.appendChild(cell_th);
+				row.appendChild(cell_td);
+			});
+
+			// Return the table.
+			return table;
+		};
+		let createTable_type2 = function (headers=[], data=[], caption="", width=400){
+			// Create the table.
+			let table = document.createElement("table");
+			table.style.width=width+"px";
+
+			let captionElem = document.createElement("caption");
+			captionElem.style.width=(width-2)+"px";
+			captionElem.innerText=caption;
+			table.appendChild(captionElem);
+
+			// Create the headers.
+			let row = table.insertRow(table.rows.length);
+
+			headers.forEach(function(d,i,a){
+				// let cell = row.insertCell(i);
+				let cell = document.createElement("th");
+				cell.innerText = d;
+				row.appendChild(cell);
+			});
+
+			// Create the data row.
+			data.forEach(function(d1,i1,a1){
+				row = table.insertRow(table.rows.length);
+				headers.forEach(function(d2,i2,a2){
+					let cell = document.createElement("td");
+					cell.innerText = d1[d2];
+					row.appendChild(cell);
+				});
+			});
+
+			// Return the table.
+			return table;
+		};
+
+		let shots         = function(){
+			let data = {
+				"AI" : [],
+				"AS" : [],
+				"P1" : [],
+				"P2" : [],
+			};
+			GAMEVARS.SHOTS.forEach(function(d,i,a){
+				let newRec = {
+					"i"          : i            ,
+					"x"          : d.x          ,
+					"y"          : d.y          ,
+					"origin"     : d.origin     ,
+					"oob"        : d.removeThis ,
+				};
+
+				switch(newRec.origin){
+					case "AI" : { data["AI"].push(newRec); break; }
+					case "AS" : { data["AS"].push(newRec); break; }
+					case "P1" : { data["P1"].push(newRec); break; }
+					case "P2" : { data["P2"].push(newRec); break; }
+					default   : { break; }
+				}
+			});
+
+			let headers = [
+				"i"          ,
+				"x"          ,
+				"y"          ,
+				"origin"     ,
+				"oob" ,
+			];
+
+			let table1 = createTable_type2( headers, data["AI"], "Shots (AI) ("+data["AI"].length+")", 135 );
+			let table2 = createTable_type2( headers, data["AS"], "Shots (AS) ("+data["AS"].length+")", 135 );
+			let table3 = createTable_type2( headers, data["P1"], "Shots (P1) ("+data["P1"].length+")", 135 );
+			let table4 = createTable_type2( headers, data["P2"], "Shots (P2) ("+data["P2"].length+")", 135 );
+
+			table1.classList.add("debugTable1");
+			table2.classList.add("debugTable1");
+			table3.classList.add("debugTable1");
+			table4.classList.add("debugTable1");
+
+			let div = document.createElement("div");
+			div.classList.add("debugDiv_container");
+			div.appendChild(table1);
+			div.appendChild(table2);
+			// div.appendChild( document.createElement("br"));
+			div.appendChild(table3);
+			div.appendChild(table4);
+
+			// Return the table.
+			return {
+				"div" : div ,
+			};
+		};
+		let players         = function(){
+			let data = {
+				"P1" : [],
+				"P2" : [],
+			};
+			GAMEVARS.PLAYERS.forEach(function(d,i,a){
+				let newRec = {
+					"i"           : i             ,
+					"x"           : d.x           ,
+					"y"           : d.y           ,
+					"imgCacheKey" : d.imgCacheKey ,
+					"player"      : d.playernum   ,
+					"origin"      : d.origin      ,
+					"shots"       : d.shots       ,
+					"hits"        : d.hits        ,
+				};
+
+				switch(newRec.origin){
+					case "P1" : { data["P1"].push(newRec); break; }
+					case "P2" : { data["P2"].push(newRec); break; }
+					default   : { console.log("no origin match"); break; }
+				}
+			});
+
+			let headers = [
+				"i"           ,
+				"x"           ,
+				"y"           ,
+				"imgCacheKey" ,
+				"player"      ,
+				"shots"       ,
+				"hits"        ,
+			];
+
+			let table3 = createTable_type2( headers, data["P1"], "Player (P1) ("+data["P1"].length+")", 250 );
+			let table4 = createTable_type2( headers, data["P2"], "Player (P2) ("+data["P2"].length+")", 250 );
+
+			table3.classList.add("debugTable1");
+			table4.classList.add("debugTable1");
+
+			let div = document.createElement("div");
+			div.classList.add("debugDiv_container");
+			// div.appendChild( document.createElement("br"));
+			div.appendChild(table3);
+			div.appendChild(table4);
+
+			// Return the table.
+			return {
+				"div" : div ,
+			};
+		};
+		let invaders       = function(){
+			let dims = {
+				"w": IMGCACHE["invader1"][0].width  ,
+				"h": IMGCACHE["invader1"][0].height ,
+				"spacing_x"  : GAMEVARS.invader_spacing_x  ,
+				"spacing_y"  : GAMEVARS.invader_spacing_y  ,
+				"shot1_vely" : GAMEVARS.invader_shot1_vely ,
+				"fmax"       : GAMEVARS.invader_fmax       ,
+			};
+
+			let mapFunction = function(d,i,a){
+				// let dir = (Math.sign(d.dir) == 1 ? 'R' : 'L') ;
+				let dir = d.dir;
+				let frame = d.frameslatency + "/" + dims.fmax;
+				let x = d.x;
+				let y = d.y;
+
+				return {
+					"i"        : i            ,
+					"shots"    : d.shotsFired ,
+					"dir"      : dir          ,
+					"f"        : frame        ,
+					"x"        : x            ,
+					"y"        : y            ,
+					"isHit" : d.isHit   ,
+					"dead"     : d.removeThis ,
+					"fnum"     : d.framenum   ,
+				};
+			};
+
+			let headers = [
+				"i",
+				"shots",
+				"dir"  ,
+				"f"    ,
+				"x"    ,
+				"y"    ,
+				"isHit",
+				"dead",
+				"fnum",
+			];
+
+			let data = GAMEVARS.INVADERS.map(mapFunction);
+
+			let len = data.length;
+			let data1 = data.splice(0, len/2);
+			let data2 = data.splice(0, len/2);
+
+			let table1 = createTable_type2( headers, data1, "Invaders (group 1)", 275 );
+			let table2 = createTable_type2( headers, data2, "Invaders (group 2)", 275 );
+
+			let div = document.createElement("div");
+			div.classList.add("debugDiv_container");
+			table1.classList.add("debugTable1");
+			table2.classList.add("debugTable1");
+			div.appendChild(table1);
+			div.appendChild(table2);
+
+			// Return the table.
+			return {
+				"div" : div ,
+			};
+		};
+
+		let html_shots    = shots();
+		let html_players  = players();
+		let html_invaders = invaders();
+
+		let div = document.createElement("div");
+		div.appendChild(html_players.div);
+		div.appendChild(html_invaders.div);
+		div.appendChild(html_shots.div);
+
+		DOM.debug_output.innerHTML="";
+		DOM.debug_output.appendChild(div);
+
+		// Toggle the paused indicator.
+		let pauseState = DOM.pauseState.innerText;
+		if     (pauseState==" --"){ DOM.pauseState.innerText = " ==" ;  }
+		else if(pauseState==" =="){ DOM.pauseState.innerText = " --" ;  }
+	},
+
+	demoEntities : function(){
+		// Player 1
+		FUNCS.addPlayer(1);
+
+		// Player 2
+		FUNCS.addPlayer(2);
+
+		// Invader grid
+		FUNCS.createInvaderGrid();
+
+		// Ship
+		// FUNCS.createShip();
+
+		// Barriers
+		// FUNCS.createBarrier();
+	},
+
+	lowerInvaders : function(){
+		// let w = IMGCACHE["invader1"][0].width  ;
+		let h = IMGCACHE["invader1"][0].height ;
+		for(let invader of GAMEVARS.INVADERS){
+			if(invader.isHit || invader.removeThis){ continue; }
+			invader.y += Math.ceil(h/2);
+		}
+	},
+	raiseInvaders : function(){
+		// let w = IMGCACHE["invader1"][0].width  ;
+		let h = IMGCACHE["invader1"][0].height ;
+		for(let invader of GAMEVARS.INVADERS){
+			if(invader.isHit || invader.removeThis){ continue; }
+			invader.y -= Math.ceil(h/2);
+		}
+	},
 };
 
 // ***** User-defined objects used.
@@ -590,15 +1216,67 @@ function Player (x, y, control, playernum){
 	this.hits     = 0 ;
 	this.accuracy = 0 ;
 	this.timeshit = 0 ;
+	this.isHit = false  ;
 
 	// Key used to access the image in the IMGCACHE.
 	this.imgCacheKey = "player";
-	this.frameNum    = 0;
+	this.framenum    = 0;
+
+	// Set the origin.
+	this.origin=null;
+	if     (playernum==1){ this.origin = "P1"; }
+	else if(playernum==2){ this.origin = "P2"; }
+	else { console.log("ERROR: INVALID PLAYERNUM"); return; }
+
+	//
+	this.fire = function(){
+		// Update the cached counts for projectiles.
+		FUNCS.countProjectiles();
+
+		let player_key;
+		if(this.control=='H'){
+			if     (this.playernum==1){ player_key = "P1";}
+			else if(this.playernum==2){ player_key = "P2";}
+			else{
+				console.log("INVALID PLAYERNUM");
+				return;
+			}
+
+			let shotCount = GAMEVARS.shotCounts[player_key] ? GAMEVARS.shotCounts[player_key] : 0 ;
+
+			if(shotCount + 1 <= GAMEVARS.maxShots_PLAYERS){
+				// Record this as a shot.
+				this.shots+=1;
+
+				// Get the source image.
+				let img = IMGCACHE[this.imgCacheKey][this.framenum];
+				// let img = IMGCACHE["shot1"][0];
+
+				// Add the new shot into the game.
+				let shot = {
+					"x"      : this.x + (img.width  /2) - 1,
+					"y"      : this.y - (img.height /2) - 1,
+					"origin" : player_key
+				};
+
+				//
+				FUNCS.addShot(shot);
+
+			}
+			else{
+				// console.log("Max shots for p1 already on the board.", shotCount);
+				return;
+			}
+
+		}
+		// else if(this.control=='C'){
+		// }
+	};
 
 	//
 	this.draw = function(){
 		// Get the source image.
-		let img = IMGCACHE[this.imgCacheKey][this.frameNum];
+		let img = IMGCACHE[this.imgCacheKey][this.framenum];
 
 		// Draw the entity at the current coordinates.
 		DOM.preMainCanvas_ctx.drawImage(img, this.x, this.y);
@@ -607,38 +1285,304 @@ function Player (x, y, control, playernum){
 	this.updatePosition = function(){
 		let newX = this.x;
 
-		// Check if a keycode is contained within KEYSTATE.
-		if(this.playernum==1 && this.control=='H'){
-			if (GAMEVARS.KEYSTATE[GAMEVARS.KEYBOARD_CONTROLS.P1.LEFT.CODE]) { newX -= GAMEVARS.player_xvel; }
-			if (GAMEVARS.KEYSTATE[GAMEVARS.KEYBOARD_CONTROLS.P1.RIGHT.CODE]){ newX += GAMEVARS.player_xvel; }
-			// if (GAMEVARS.KEYSTATE[GAMEVARS.KEYBOARD_CONTROLS.P1.FIRE.CODE]) { this.fire(); }
-		}
-		else if(this.playernum==2 && this.control=='H'){
-			if (GAMEVARS.KEYSTATE[GAMEVARS.KEYBOARD_CONTROLS.P2.LEFT.CODE]) { newX -= GAMEVARS.player_xvel; }
-			if (GAMEVARS.KEYSTATE[GAMEVARS.KEYBOARD_CONTROLS.P2.RIGHT.CODE]){ newX += GAMEVARS.player_xvel; }
-			// if (GAMEVARS.KEYSTATE[GAMEVARS.KEYBOARD_CONTROLS.P2.FIRE.CODE]) { this.fire(); }
-		}
+		let player_key;
 
-		// Make sure that the new x and y are valid and the Player ships cannot go out of bounds.
-		let width = IMGCACHE[this.imgCacheKey][this.frameNum].width;
+		if(this.control=='H'){
+			if     (this.playernum==1){ player_key = "P1";}
+			else if(this.playernum==2){ player_key = "P2";}
+			else{
+				console.log("INVALID PLAYERNUM");
+				return;
+			}
 
-		// Adjust x if it is in bounds.
-		if(  (newX <=0 || newX >= DOM.mainCanvas.width-width) ){
-			// console.log("OUT OF BOUNDS", newX);
-			return;
+			// Check if a keycode is contained within KEYSTATE.
+			let left  = GAMEVARS.KEYSTATE[GAMEVARS.KEYBOARD_CONTROLS[player_key].LEFT.CODE ] ;
+			let right = GAMEVARS.KEYSTATE[GAMEVARS.KEYBOARD_CONTROLS[player_key].RIGHT.CODE] ;
+			let fire  = GAMEVARS.KEYSTATE[GAMEVARS.KEYBOARD_CONTROLS[player_key].FIRE.CODE ] ;
+			if (left ) { newX -= GAMEVARS.player_xvel; }
+			if (right) { newX += GAMEVARS.player_xvel; }
+			if (fire ) { this.fire(); }
+
+			// Make sure that the new x and y are valid and the Player ships cannot go out of bounds.
+			let width = IMGCACHE[this.imgCacheKey][this.framenum].width;
+
+			// Adjust x if it is in bounds.
+			if(  (newX <=0 || newX >= DOM.mainCanvas.width-width) ){
+				// console.log("OUT OF BOUNDS", newX);
+				return;
+			}
+			else{
+				this.x=newX;
+			}
 		}
-		else{
-			this.x=newX;
-		}
+		// else if(this.control=='C'){
+		// }
+
 	};
 
 }
 function Shot   (x, y, origin){
+	// Passed with 'new'.
+	this.x      = x      ;
+	this.y      = y      ;
+	this.origin = origin ;
+
+	//
+	this.removeThis=false;
+
+	// Key used to access the image in the IMGCACHE.
+	this.imgCacheKey = "shot1";
+	this.framenum    = 0;
+
+	// Collision check functions.
+
+	// Axis-Aligned Bounding-Box collision detection.
+	this.AABB = function(box1, box2){
+		// Check for overlap.
+		// let ax = target.pos.x;      let ay = target.pos.y;
+		// let aw = target.size.w;     let ah = target.size.h;
+		// let bx = projectile.pos.x;  let by = projectile.pos.y;
+		// let bw = projectile.size.w; let bh = projectile.size.h;
+
+		let ax = box1.x; let ay = box1.y;
+		let aw = box1.w; let ah = box1.h;
+		let bx = box2.x; let by = box2.y;
+		let bw = box2.w; let bh = box2.h;
+
+		// Axis Aligned Bounding Boxes (AABB). (Is a box overlapping another box?)
+		// https://www.youtube.com/watch?v=ghqD3e37R7E
+		return (
+			ax < bx + bw && // Right  edge of A is left      edge of B
+			ay < by + bh && // Bottom edge of A is above top edge of B
+			bx < ax + aw && // Right  edge of B is left      edge of A
+			by < ay + ah	// Bottom edge of B is above top edge of A
+		);
+	};
+
+	//
+	this.detectCollision = function(rect){
+		let collisions = {
+			"PLAYERS"  : [] ,
+			"SHOTS"    : [] ,
+			"SHIPS"    : [] ,
+			"INVADERS" : [] ,
+			"BARRIERS" : [] ,
+		};
+
+		let keys1 = Object.keys(collisions);
+
+		for(let key1 of keys1){
+			for(let key2 of GAMEVARS[key1]){
+				let rec = key2;
+
+				if(rec.removeThis){ continue; }
+				if(rec.isHit)     { continue; }
+
+				let targetImg;
+				try{
+					targetImg = IMGCACHE[rec.imgCacheKey][rec.framenum];
+				}
+				catch(e){
+					console.log(
+						"CATCH:",
+						"\n	key1           :", key1            ,
+						"\n	rec.imgCacheKey:", rec.imgCacheKey ,
+						"\n	rec.framenum   :", rec.framenum    ,
+						"\n	rec            :", rec             ,
+						"\n	targetImg      :", targetImg       ,
+						""
+					);
+				}
+
+				let collided = this.AABB(
+					{
+						"x":rect.x , "y":rect.y ,
+						"w":rect.w , "h":rect.h ,
+					},
+					{
+						"x":rec.x           , "y":rec.y,
+						"w":targetImg.width , "h":targetImg.height,
+					}
+				);
+
+				if(collided){
+					collisions[key1].push(rec);
+				}
+			}
+
+		}
+
+		return collisions;
+	};
+
+	//
+	this.updatePosition = function(){
+		if(this.removeThis){ console.log("dead shot"); return; }
+
+		// Get the source image.
+		let img = IMGCACHE[this.imgCacheKey][this.framenum];
+
+		// Fired by player?
+		if(this.origin == "P1" || this.origin == "P2"){
+			// Did the shot leave the screen boundry? (on Y.)
+			if(this.y <= 0+img.height){
+				// Set the remove flag.
+				this.removeThis=true;
+
+				// Update the player's accuracy.
+				//
+
+				return;
+			}
+
+			//
+			let hits = this.detectCollision(
+				{
+					"x":this.x   , "y":this.y,
+					"w":img.width, "h":img.height
+				}
+			);
+
+			// Did the shot collide with a barrier?
+			if     (hits.BARRIERS.length){
+				// console.log("BARRIERS hit!", hits.BARRIERS.length, hits);
+				this.removeThis=true;
+				return;
+			}
+
+			// Did the shot collide with a invader?
+			else if(hits.INVADERS.length){
+				console.log("INVADERS hit!", hits.INVADERS.length, hits);
+				this.removeThis=true;
+
+				hits.INVADERS.forEach(function(d,i,a){
+					d.isHit         = true;
+					d.removeThis    = false;
+					d.imgCacheKey   = "hit1";
+					d.framenum      = 0;
+					d.frameslatency = 0;
+					d.explodeRepeat =  0;
+					// d.explodeRepeatsMax = 0;
+				});
+				return;
+			}
+
+			// Did the shot collide with a ship?
+			else if(hits.SHIPS.length){
+				// console.log("SHIPS hit!", hits.SHIPS.length, hits);
+				this.removeThis=true;
+				return;
+			}
+
+			// Shot is still active. Move the shot.
+			else{
+				// Move the projectile.
+				this.y += Math.abs(GAMEVARS.player_shot1_vely) * -1;
+			}
+
+		}
+
+		// Fired by enemy?
+		else if(this.origin == "AI" || this.origin == "AS"){
+
+			// Did the shot leave the screen boundry? (on Y.)
+			if(this.x+img.height <= DOM.mainCanvas.height){
+				// Set the remove flag.
+				this.removeThis=true;
+
+				// Update the player's accuracy.
+				//
+			}
+			else{
+				// Move the projectile.
+				this.y += GAMEVARS.player_shot1_vely;
+			}
+
+			// Did the shot collide with a player?
+		}
+	};
+
+	//
+	this.draw = function(){
+		// Get the source image.
+		let img = IMGCACHE[this.imgCacheKey][this.framenum];
+
+		// Draw the entity at the current coordinates.
+		DOM.preMainCanvas_ctx.drawImage(img, this.x, this.y);
+	};
 
 }
 function Ship   (x, y, type){
 
 }
 function Invader(x, y, type){
+	// Passed with 'new'.
+	this.x    = x    ;
+	this.y    = y    ;
+	this.type = type ;
 
+	// Created at instantiation.
+	this.dir           = "R"   ;
+	this.frameslatency = 0     ;
+	this.jumpingY      = false ;
+	this.isHit      = false ;
+	this.removeThis    = false ;
+	this.shotsFired    = 0 ;
+	this.jumpingY      = false ;
+
+	// Key used to access the image in the IMGCACHE.
+	this.imgCacheKey = type;
+	this.framenum    = 0;
+
+	// Explode
+	this.explodeRepeat     = 0 ;
+	this.explodeRepeatsMax = 1 ;
+	this.explodeFramesLatencyMax = 2 ;
+
+	//
+	this.draw           = function(){
+		// Get the source image.
+		// let img = IMGCACHE[this.type][this.framenum];
+		let img = IMGCACHE[this.imgCacheKey][this.framenum];
+
+		// Draw the entity at the current coordinates.
+		DOM.preMainCanvas_ctx.drawImage(img, this.x, this.y);
+	};
+
+	this.draw_explode = function(){
+		// Animations still remaining?
+		if(this.explodeRepeat < this.explodeRepeatsMax){
+			this.removeThis=false;
+			// if(this.frameslatency >= GAMEVARS.invader_fmax){
+			if(this.frameslatency >= this.explodeFramesLatencyMax){
+				if     (this.framenum==0){ this.framenum=1; }
+				else if(this.framenum==1){ this.framenum=0; this.explodeRepeat+=1; }
+				else                     { this.framenum=0; }
+
+				if     (this.jumpingY == 0){ this.y -= 1; }
+				else if(this.jumpingY == 1){ this.y += 1; }
+				this.jumpingY = ! this.jumpingY ;
+
+				this.frameslatency=0;
+			}
+			else{
+				this.frameslatency += 1; //
+			}
+		}
+		// Animations are done. Remove the Invader.
+		else{
+			this.isHit=false;
+			this.removeThis=true;
+		}
+	};
+
+	//
+	// this.updatePosition = function(){
+
+	// };
+
+	//
+	// this.awardPoints    = function(){
+
+	// };
 }
