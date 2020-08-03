@@ -17,6 +17,12 @@
 
 	<!-- Basic styling, centering the canvas -->
 	<link rel="stylesheet" type="text/css" href="game.css">
+	<script>
+		<?php
+			if($debugIsOn){ echo "let DEBUGMODE=true;\n"; }
+			else          { echo "let DEBUGMODE=false;\n"; }
+		?>
+	</script>
 </head>
 
 <body>
@@ -31,7 +37,7 @@
 	-->
 
 	<!--Game, modifiers, debug stats-->
-	<div id="gameAndControls" <?php echo !$debugIsOn ? "class='centerMain'" : ""; ?>>
+	<div id="gameAndControls" class="centerMain">
 		<div id="game">
 			<div id="gametitle">
 				Space Invaders!
@@ -56,10 +62,15 @@
 		</div>
 
 		<div id="sideDiv" <?php echo !$debugIsOn ? "class='hidden'" : ""; ?>>
-			<b>Last canvas mouse coords:</b> <span id="mouseCoordsDiv">(x:0, y:0)</span> <br>
-
 			<label <?php echo $debugIsOn ? "" : 'style="display:none;"'; ?> ><input id="chk_debug" type="checkbox" <?php echo $debugIsOn ? "checked" : ""; ?> >Update the debug info.<br></label>
 			<?php echo $debugIsOn ? "<br>" : ''; ?>
+
+			<div id="debug_output1">
+			</div>
+		</div>
+
+		<div id="sideDiv2" <?php echo !$debugIsOn ? "class='hidden'" : ""; ?>>
+			<b>Last canvas mouse coords:</b> <span id="mouseCoordsDiv">(x:0, y:0)</span> <br>
 
 			<input type="button" onclick="FUNCS.pause();" value="FUNCS.pause();"><span id="pauseState"> --</span><br>
 
@@ -68,8 +79,18 @@
 			<!-- <input type="button" onclick="FUNCS.createInvaderGrid();"                              value="FUNCS.createInvaderGrid();"> -->
 			<input type="button" onclick="DEBUG.demoEntities();" value="DEMO ENTITIES">
 			<input type="button" onclick="FUNCS.startGameFromBeginning();" value="RESET">
+			<br>
+
 			<input type="button" onclick="DEBUG.lowerInvaders();" value="LOWER INVADERS">
 			<input type="button" onclick="DEBUG.raiseInvaders();" value="RAISE INVADERS">
+			<input type="button" onclick="DEBUG.removeFirstInvader();" value="removeFirstInvader">
+			<input type="button" onclick="DEBUG.removeLastInvader();" value="removeLastInvader">
+			<!-- <input type="button" onclick="FUNCS.invaderShoot_random();" value="INVADER RANDOM SHOOT"> -->
+			<br>
+			<input type="button" onclick="GAMEVARS.gameover_bottom-=1;" value="gameover_bottom -=1">
+			<input type="button" onclick="GAMEVARS.gameover_bottom+=1;" value="gameover_bottom +=1">
+			<input type="button" onclick="GAMEVARS.barrier_top-=1;" value="barrier_top -=1">
+			<input type="button" onclick="GAMEVARS.barrier_top+=1;" value="barrier_top +=1">
 			<br>
 
 			<!-- <input type="button" onclick="DEBUG.drawPreCanvasToPostCanvas();" value="DEBUG.drawPreCanvasToPostCanvas();"><br> -->
@@ -95,13 +116,9 @@
 				<option value="60">Set to 60 FPS</option>
 			</select>
 			<br>
+			<br>
 
-			<!-- Move grid right -->
-			<!-- Move grid left -->
-			<!-- Move grid down -->
-			<!-- Move grid up -->
-
-			<div id="debug_output">
+			<div id="debug_output2">
 			</div>
 
 		</div>

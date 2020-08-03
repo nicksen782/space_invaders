@@ -1,130 +1,28 @@
-Still need to better handle gameover.
-	Make the invaders come down crashing!
+/**************\
+| -- TO DO: -- |
+\**************/
 
-Need title screens, menus.
+* Still need to better handle gameover.
+* - Make the invaders come down crashing!
+* The invaders should speed up as they are defeated. (fmax)
+* Need title screens, menus.
 
+/*************\
+| -- DONE: -- |
+\*************/
 
-============================
-VERSION 4.
-
-REFACTOR!!
-
-Load spritesheet image. Break up and cache into separate (and resized) images.
-	new_spriteSheet has the spritesheet coords.
-	DIMS has the new w and h for the broken-out images.
-
-global object: GAMEVARS
-
-global object: DOM
-	Holds references to the DOM
-
-Need a better gameloop.
-
-window.onload
-
-The alien ship should move slowly, come out on a timer, and exit the screen when the boundary is reached.
-
-The invaders should speed up as they are defeated. (fmax)
-
-requestAnimationFrame should be used, not setTimeout.
-
-frame rate needs to be able to be limited.
-
-Objects: Player, Projectile, AlienShip, AlienInvader, Barrier.
-
-The speed of the projectiles from all entities should not change once set.
-
-Collisions only happen with projectiles and screen boundaries.
-
-New graphics (from the Atari 2600 version of the game.)
-
-Title screen with menu.
-
-Entities can have multiple frames or just one.
-
-Keep track of player shots and hits on enemy.
-
-All canvas draws are written to unattached-to-DOM canvas BEFORE written to the DOM-attached canvas.
-
-
+* Gameloop on pause now waits 1 second for each unpause check.
+* Shots now have a color at the tip to identify the firing origin.
+* Fix bug where shots were updated twice per frame.
+* document.title prepends "(P) " when paused.
+* The html document body is horizontally centered now (even in debug.)
+* Invaders can now shoot.
+* Hits on invaders now have a temporary animation.
+* Points are awarded to the player when an invader is hit.
+* Player data now includes shot/hit accuracy.
+* Barriers have been added. They block shots but each shot takes some of the barrier away.
 
 ============================
-
-There are lots of global variables. They should be stored in a global object.
-
-
-
-Player 1
-Player 2
-Alien Invaders
-Alien Ship (at the top)
-==================================
-SPACE INVADERS!
-
-V1
-Alien Actions:
- X With this version I am going to try to get some Alien Ships to move across the screen.
- X Initially, the invaders will only shoot by user action (spacebar.)
- X Allow Alien Ships to shoot on their own.
-
-Player Actions:
- X The players will be able to move left and right and be able to shoot.
-
-Collision:
- X Check for collision with player shots and Alien Ships.
-	Check for collision with enemy Alien Ships and the Players.
-	Simple temporary graphical indication of a projectile collision.
-
-Stats:
- X Keep count of each player's shots made and shots fired.
- X Differentiate enemy shots vs player shots.
- X Keep count of when each player is hit by and enemy projectile.
-
-Game Modifiers:
- X Game reset
- X Player left/right movement, player shoot
- X Frames Per Second live adjustment
- X Add Random Alien Ship
- X Remove All Alien Ships
- X Show debugging information
-
-Other Game Elements:
- X Randomize alien ship at top of screen.
-
-V2
-
-Game Framework:
-	Fix Player Object and all related code that calls it to use pos, and size like Projectiles and Alienships do.
-
-Player Actions:
-	X Restrict fired shots per second.
-
-Alien Actions:
-
-Other Game Elements:
-	Add protective barriers to block shots.
-
-Other Game Elements:
-	Alien Ship to appear as a timed event also based on number of Player shots.
-	Sounds: Player shots, enemy shots, enemy movement, alien ship, player hit, alien hit, alien ship hit.
-
-V3
-
-
-
-Constants:
-	Canvas width
-	Canvas height.
-	Named constanclearTimeout(STO_ID);s for keyboard controls.
-
-Game elements
-	Canvas
-	Context
-	Keystate
-
-	Score
-	Shots fired
-
 
 http://spaceinvaders.wikia.com/wiki/Space_Invaders_(Atari_2600)
 
@@ -133,29 +31,5 @@ Zigzagging Laser Bombs--Invaders' shots zigzag back and forth towards the earth
 Fast Laser Bombs--Invaders' Bombs drop quickly
 Invisible Invaders--Invaders are invisible unless one (or the Command Alien Ship) is shot, which they then briefly reappear
 Large laser cannon--flipping a difficulty switch on the 2600 console to the A position makes players' laser cannons twice as large
-
-Row 1 Invader--5 points
-Row 2 Invader--10 points
-Row 3 Invader--15 points
-Row 4 Invader--20 points
-Row 5 Invader--25 points
-Row 6 Invader--30 points
-Command Alien Ship--200 points, or 100 points in certain game variations
-
-Alien Object
-
-Alien Ship Object
-
-Projectile Object
-	updatePosition
-	collisionCheck
-	draw
-
-Player Object
-	fire
-	updatePosition
-	draw
-
-
 
 http://atomicrobotdesign.com/blog/web-development/how-to-use-sprite-sheets-with-html5-canvas/

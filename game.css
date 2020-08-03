@@ -54,12 +54,27 @@ div#sideDiv {
     display: inline-block;
     text-align: left;
     background-color: dimgray;
-    color:black;
+    color: black;
     width: 580px;
     height: 680px;
+    vertical-align: top;
 }
 
 #sideDiv.hidden {
+    display: none;
+}
+
+div#sideDiv2 {
+    display: inline-block;
+    text-align: left;
+    background-color: dimgray;
+    color: black;
+    width: 580px;
+    height: 680px;
+    vertical-align: top;
+}
+
+#sideDiv2.hidden {
     display: none;
 }
 
@@ -105,7 +120,7 @@ div#sideDiv {
     margin: auto;
     margin-top: 5px;
     /* padding: 5px; */
-    background-color:black;
+    background-color: black;
     width: 550px;
     height: 550px;
     position: absolute;
@@ -113,21 +128,22 @@ div#sideDiv {
     left: 1px;
 }
 
-#requestUserInteraction{
-	background-color: darkgoldenrod;
-	color: black;
-	border: 2px solid lightslategray;
-	height: 3em;
-	width: 90%;
-	position: absolute;
-	top: 35%;
-	left: 26px;
-	text-align: center;
-	font-size: 36px;
-	padding-top: 1em;
+#requestUserInteraction {
+    background-color: darkgoldenrod;
+    color: black;
+    border: 2px solid lightslategray;
+    height: 3em;
+    width: 90%;
+    position: absolute;
+    top: 35%;
+    left: 26px;
+    text-align: center;
+    font-size: 36px;
+    padding-top: 1em;
 }
-#requestUserInteraction.hidden{
-	display:none;
+
+#requestUserInteraction.hidden {
+    display: none;
 }
 
 #gametitle {
@@ -149,9 +165,9 @@ div#sideDiv {
     text-align: center;
 }
 
-#debug_output{
-	border: 2px solid lightslategray;
-	padding:2px;
+#debug_output {
+    border: 2px solid lightslategray;
+    padding: 2px;
 }
 
 div#canvas1_div {
@@ -170,8 +186,27 @@ div#canvas1_div {
     vertical-align: top;
     color: black;
 }
-.debugTable1 caption{font-weight: bold;text-decoration: underline;background-color: #8c8c5b;/* border: 1px solid black; */display: inline-block;text-align: center;}
-.debugTable1 th{ text-decoration:underline; }
+
+.debugTable1 caption {
+    font-weight: bold;
+    text-decoration: underline;
+    background-color: #8c8c5b;
+    /* border: 1px solid black; */
+    /* display: inline-block; */
+    text-align: center;
+}
+
+.debugTable1 th {
+    text-decoration: underline;
+}
+
+.debugTable1 td,
+.debugTable1 th,
+.debugTable1 tr {
+    padding: 0px;
+    margin: 0px;
+}
+
 .textCenter {
     text-align: center;
 }
