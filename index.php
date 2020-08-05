@@ -15,118 +15,126 @@
 
 	<title>Space Invaders v4</title>
 
-	<!-- Basic styling, centering the canvas -->
+	<!-- Record the debug flag. -->
+	<?php
+		// Determine if the debug flag is set and create a value for it in JavaScript.
+		echo "<script>let DEBUGMODE=" . ($debugIsOn ? "true" : "false") . ";</script>\n";
+	?>
+
+	<!-- GAME JAVASCRIPT -->
+	<script type="text/javascript" src="game.js"></script>
+
+	<!-- GAME CSS -->
 	<link rel="stylesheet" type="text/css" href="game.css">
-	<script>
-		<?php
-			if($debugIsOn){ echo "let DEBUGMODE=true;\n"; }
-			else          { echo "let DEBUGMODE=false;\n"; }
-		?>
-	</script>
+
+	<?php
+		// Determine if the debug flag is set and create a value for it in JavaScript.
+		if($debugIsOn){
+			echo "<!-- DEBUG JAVASCRIPT -->\n";
+			echo "\t<script type='text/javascript' src='debug.js'></script>" ."\n";
+			echo "\n";
+
+			echo "\t";
+			echo "<!-- DEBUG CSS -->\n";
+			echo "\t<link rel='stylesheet' type='text/css' href='debug.css'>" ."\n";
+		}
+	?>
+
 </head>
 
 <body>
+	<!--  -->
+	<div id="entireBodyDiv"></div>
 
-	<!--
-		UTILITYFUNCTIONS.playSound('player_shoot');
-		UTILITYFUNCTIONS.playSound('player_hit');
-		UTILITYFUNCTIONS.playSound('alien_ship_shoot');
-		UTILITYFUNCTIONS.playSound('alien_ship_hit');
-		UTILITYFUNCTIONS.playSound('alien_invader_shoot');
-		UTILITYFUNCTIONS.playSound('alien_invader_hit');
-	-->
+	<!-- MAIN DISPLAY -->
+	<div id="mainDisplay" class=" <?php echo $debugIsOn ? "inlineBlock" : ""?>">
 
-	<!--Game, modifiers, debug stats-->
-	<div id="gameAndControls" class="centerMain">
-		<div id="game">
-			<div id="gametitle">
+		<!-- GAME DIV -->
+		<div id="game" class="borderRadius1">
+			<!-- TITLE -->
+			<div id="gametitle" class="borderRadius1">
 				Space Invaders!
 			</div>
 
-			<div id="scores">
+			<!-- SCORES -->
+			<div id="scores" class="borderRadius1">
+				<!-- Player 1 -->
 				<div id="p1Score">&nbsp;</div><div id="p2Score">&nbsp;</div>
+
 				<div style="clear:both;"></div>
+
+				<!-- Player 2 -->
 				<div id="p1Accurracy">&nbsp;</div><div id="p2Accurracy">&nbsp;</div>
 			</div>
 
-			<!--This is where the game display is.-->
-			<div id="canvas1_div">
-				<canvas id="mainCanvas" width="240" height="240"></canvas>
-				<div id="requestUserInteraction" class="hidden">
+			<!-- MAIN DISPLAY -->
+			<div id="canvas1_div" class="borderRadius1">
+				<!-- Game output canvas -->
+				<canvas id="mainCanvas" width="240" height="240" class=""></canvas>
+
+				<!-- User interaction needed div -->
+				<div id="requestUserInteraction" class="hidden borderRadius1">
 					Click anywhere on the
 					<br>
 					webpage to continue.
+
 				</div>
 			</div>
 
-		</div>
+			<!-- CONTROLS -->
+			<div id="controls" class="borderRadius1">
+				<!-- Controls go here -->
+				<div id="p1_area" class="borderRadius1">
+					<canvas
+						id="joystick1_canvas"
+					></canvas>
+					<canvas
+						id           = "fire1_canvas"
+						onmousedown  = "FUNCS.emulateKeypressByControls('P1', 'fire' , true);"
+						onmouseup    = "FUNCS.emulateKeypressByControls('P1', 'fire' , false);"
+						onmouseleave = "FUNCS.emulateKeypressByControls('P1', 'fire' , false);"
+					></canvas>
+				</div>
 
-		<div id="sideDiv" <?php echo !$debugIsOn ? "class='hidden'" : ""; ?>>
-			<label <?php echo $debugIsOn ? "" : 'style="display:none;"'; ?> ><input id="chk_debug" type="checkbox" <?php echo $debugIsOn ? "checked" : ""; ?> >Update the debug info.<br></label>
-			<?php echo $debugIsOn ? "<br>" : ''; ?>
+				<div id="p2_area" class="borderRadius1">
+					<canvas
+						id="joystick2_canvas"
+					></canvas>
+					<canvas
+						id           = "fire2_canvas"
+						onmousedown  = "FUNCS.emulateKeypressByControls('P2', 'fire' , true);"
+						onmouseup    = "FUNCS.emulateKeypressByControls('P2', 'fire' , false);"
+						onmouseleave = "FUNCS.emulateKeypressByControls('P2', 'fire' , false);"
+					></canvas>
+				</div>
 
-			<div id="debug_output1">
-			</div>
-		</div>
+				<div style="clear:both;"></div>
 
-		<div id="sideDiv2" <?php echo !$debugIsOn ? "class='hidden'" : ""; ?>>
-			<b>Last canvas mouse coords:</b> <span id="mouseCoordsDiv">(x:0, y:0)</span> <br>
+				<div id="menu_div">
+					<div id="menu_tab" class="borderRadius1" onclick="LOADER.toggleMenu();">CLICK TO OPEN MENU</div>
+					<div id="menu" class="closed borderRadius1">
+						<input type="button" onclick="FUNCS.demoEntities(); LOADER.toggleMenu();" value="Start Demo">
+						<br>
 
-			<input type="button" onclick="FUNCS.pause();" value="FUNCS.pause();"><span id="pauseState"> --</span><br>
+						<div id="menu_player_size_div">
+							<canvas id="menu_player_size_normal" onclick='GAMEVARS.PLAYERS[0].imgCacheKey="player"       ; LOADER.toggleMenu();'></canvas>
+							<canvas id="menu_player_size_large"  onclick='GAMEVARS.PLAYERS[0].imgCacheKey="player_large" ; LOADER.toggleMenu();'></canvas>
+							<canvas id="menu_player_size_larger" onclick='GAMEVARS.PLAYERS[0].imgCacheKey="player_larger"; LOADER.toggleMenu();'></canvas>
+						</div>
 
-			<!-- <input type="button" onclick="FUNCS.addPlayer(1);"                                     value="FUNCS.addPlayer(1);"> -->
-			<!-- <input type="button" onclick="FUNCS.addPlayer(2);"                                     value="FUNCS.addPlayer(2);"> -->
-			<!-- <input type="button" onclick="FUNCS.createInvaderGrid();"                              value="FUNCS.createInvaderGrid();"> -->
-			<input type="button" onclick="DEBUG.demoEntities();" value="DEMO ENTITIES">
-			<input type="button" onclick="FUNCS.startGameFromBeginning();" value="RESET">
-			<br>
+					</div>
+				</div>
 
-			<input type="button" onclick="DEBUG.lowerInvaders();" value="LOWER INVADERS">
-			<input type="button" onclick="DEBUG.raiseInvaders();" value="RAISE INVADERS">
-			<input type="button" onclick="DEBUG.removeFirstInvader();" value="removeFirstInvader">
-			<input type="button" onclick="DEBUG.removeLastInvader();" value="removeLastInvader">
-			<!-- <input type="button" onclick="FUNCS.invaderShoot_random();" value="INVADER RANDOM SHOOT"> -->
-			<br>
-			<input type="button" onclick="GAMEVARS.gameover_bottom-=1;" value="gameover_bottom -=1">
-			<input type="button" onclick="GAMEVARS.gameover_bottom+=1;" value="gameover_bottom +=1">
-			<input type="button" onclick="GAMEVARS.barrier_top-=1;" value="barrier_top -=1">
-			<input type="button" onclick="GAMEVARS.barrier_top+=1;" value="barrier_top +=1">
-			<br>
-
-			<!-- <input type="button" onclick="DEBUG.drawPreCanvasToPostCanvas();" value="DEBUG.drawPreCanvasToPostCanvas();"><br> -->
-			<!-- <input type="button" onclick="DEBUG.drawAllGraphics();"           value="DEBUG.drawAllGraphics();"><br> -->
-			<!-- <br> -->
-
-			<span id="currentFPS">--</span>
-			<!-- <br> -->
-			<input type="button" onclick="DEBUG.adjustFPS(-1, 0);"            value="Decrease FPS by 1">
-			<input type="button" onclick="DEBUG.adjustFPS(1 , 0);"            value="Increase FPS by 1">
-			<select id="fps_select" onchange="if(this.value){ DEBUG.adjustFPS(0 , this.value ); }">
-				<option value="">...Choose</option>
-				<option value="1" >Set to 1 FPS</option>
-				<option value="2" >Set to 2 FPS</option>
-				<option value="3" >Set to 3 FPS</option>
-				<option value="4" >Set to 4 FPS</option>
-				<option value="5" >Set to 5 FPS</option>
-				<option value="10">Set to 10 FPS</option>
-				<option value="20">Set to 20 FPS</option>
-				<option value="30">Set to 30 FPS</option>
-				<option value="40">Set to 40 FPS</option>
-				<option value="50">Set to 50 FPS</option>
-				<option value="60">Set to 60 FPS</option>
-			</select>
-			<br>
-			<br>
-
-			<div id="debug_output2">
 			</div>
 
 		</div>
 
 	</div>
-
-	<script type="text/javascript" src="game.js"></script>
-
+	<?php
+		// Include the DIV code if the $debugIsOn flag is set.
+		if($debugIsOn){ echo "\n"; require_once "debug.php"; }
+		else          { echo "\t<!-- DEBUG IS OFF -->\n";    }
+	?>
 </body>
 
 </html>

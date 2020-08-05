@@ -5,31 +5,24 @@
 * Still need to better handle gameover.
 * - Make the invaders come down crashing!
 * The invaders should speed up as they are defeated. (fmax)
-* Need title screens, menus.
+* Need title screens.
+* Need to populate the new menu with features.
 
 /*************\
 | -- DONE: -- |
 \*************/
 
-* Gameloop on pause now waits 1 second for each unpause check.
-* Shots now have a color at the tip to identify the firing origin.
-* Fix bug where shots were updated twice per frame.
-* document.title prepends "(P) " when paused.
-* The html document body is horizontally centered now (even in debug.)
-* Invaders can now shoot.
-* Hits on invaders now have a temporary animation.
-* Points are awarded to the player when an invader is hit.
-* Player data now includes shot/hit accuracy.
-* Barriers have been added. They block shots but each shot takes some of the barrier away.
+* DEBUG code has been broken out into separate html, css, and javascript.
+* - The debug code is brought in if the debug flag is set.
+* - Nicer CSS styling for the debug mode.
+* Menu tab at the bottom will open up a slide-up menu that has some user-configurable options.
+* - When the menu is closed the game will pause (GAMEVARS.pausedOnMenu) and will unpause when the menu closes.
+* - Right now there is a feature in the menu that will let you change the size of player 1's ship.
+* On-screen joystick and fire button. They respond to the input from the keyboard.
+* - The fire buttons work. The joysticks do not yet.
+* - Graphics added to the spritesheet image.
 
 ============================
 
 http://spaceinvaders.wikia.com/wiki/Space_Invaders_(Atari_2600)
-
-Moving Shields--shields move back and forth
-Zigzagging Laser Bombs--Invaders' shots zigzag back and forth towards the earth
-Fast Laser Bombs--Invaders' Bombs drop quickly
-Invisible Invaders--Invaders are invisible unless one (or the Command Alien Ship) is shot, which they then briefly reappear
-Large laser cannon--flipping a difficulty switch on the 2600 console to the A position makes players' laser cannons twice as large
-
 http://atomicrobotdesign.com/blog/web-development/how-to-use-sprite-sheets-with-html5-canvas/

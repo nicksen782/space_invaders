@@ -49,6 +49,7 @@ let GAMEVARS = {
 
 	//
 	paused             : false   ,
+	pausedOnMenu       : false   ,
 	audiocanplay       : false   ,
 	pagevisible        : true    ,
 	raf_id             : null    ,
@@ -133,8 +134,34 @@ let GAMEVARS = {
 
 };
 
+
 // Game functions.
 let FUNCS = {
+	//
+	demoEntities              : function(){
+		setTimeout(function(){
+			FUNCS.startGameFromBeginning();
+
+			// Player 1
+			FUNCS.addPlayer(1);
+
+			// Player 2
+			FUNCS.addPlayer(2);
+
+			// Invader grid
+			FUNCS.createInvaderGrid();
+
+			// Ship
+			// FUNCS.createShip();
+
+			// Barriers
+			FUNCS.createBarrier(0, 1);
+			FUNCS.createBarrier(1, 1);
+			FUNCS.createBarrier(2, 1);
+		}, 500);
+	},
+
+	//
 	getRandom : function(min, max) {
 		return Math.floor(Math.random() * (max - min + 1)) + min;
 	},
@@ -166,7 +193,7 @@ let FUNCS = {
 		FUNCS.startGameFromBeginning();
 
 		// DEBUG
-		DEBUG.demoEntities();
+		FUNCS.demoEntities();
 
 		// Handle state.
 		//
@@ -661,10 +688,44 @@ let FUNCS = {
 	},
 
 	//
+	emulateKeypressByControls : function(player, action, active){
+		let players = [ "P1", "P2" ];
+		let actions = [ "left", "right", "fire" ];
+		if(players.indexOf(player) == -1) { console.log("INVALID PLAYER: ", player); return ; }
+		if(actions.indexOf(action) == -1) { console.log("INVALID ACTION: ", action); return ; }
+
+		if     (action == "left" ) { GAMEVARS.KEYSTATE[GAMEVARS.KEYBOARD_CONTROLS[player].LEFT.CODE ] = active ; }
+		else if(action == "right") { GAMEVARS.KEYSTATE[GAMEVARS.KEYBOARD_CONTROLS[player].RIGHT.CODE] = active ; }
+		else if(action == "fire" ) { GAMEVARS.KEYSTATE[GAMEVARS.KEYBOARD_CONTROLS[player].FIRE.CODE ] = active ; }
+	},
+	//
+	updateDisplayedControls : function(){
+		// Player 1.
+		let p1_left  = GAMEVARS.KEYSTATE[GAMEVARS.KEYBOARD_CONTROLS["P1"].LEFT.CODE ] ;
+		let p1_right = GAMEVARS.KEYSTATE[GAMEVARS.KEYBOARD_CONTROLS["P1"].RIGHT.CODE] ;
+		let p1_fire  = GAMEVARS.KEYSTATE[GAMEVARS.KEYBOARD_CONTROLS["P1"].FIRE.CODE ] ;
+		if     (p1_left) { DOM.joystick1_canvas_ctx.clearRect(0,0,DOM.joystick1_canvas.width, DOM.joystick1_canvas.height); DOM.joystick1_canvas_ctx.drawImage(IMGCACHE.js_left         [0],0,0); }
+		else if(p1_right){ DOM.joystick1_canvas_ctx.clearRect(0,0,DOM.joystick1_canvas.width, DOM.joystick1_canvas.height); DOM.joystick1_canvas_ctx.drawImage(IMGCACHE.js_right        [0],0,0); }
+		else             { DOM.joystick1_canvas_ctx.clearRect(0,0,DOM.joystick1_canvas.width, DOM.joystick1_canvas.height); DOM.joystick1_canvas_ctx.drawImage(IMGCACHE.js_idle         [0],0,0); }
+		if     (p1_fire) { DOM.fire1_canvas_ctx    .clearRect(0,0,DOM.fire1_canvas.width    , DOM.fire1_canvas.height    ); DOM.fire1_canvas_ctx    .drawImage(IMGCACHE.button_pressed  [0],0,0); }
+		else             { DOM.fire1_canvas_ctx    .clearRect(0,0,DOM.fire1_canvas.width    , DOM.fire1_canvas.height    ); DOM.fire1_canvas_ctx    .drawImage(IMGCACHE.button_unpressed[0],0,0); }
+
+		// Player 2.
+		let p2_left  = GAMEVARS.KEYSTATE[GAMEVARS.KEYBOARD_CONTROLS["P2"].LEFT.CODE ] ;
+		let p2_right = GAMEVARS.KEYSTATE[GAMEVARS.KEYBOARD_CONTROLS["P2"].RIGHT.CODE] ;
+		let p2_fire  = GAMEVARS.KEYSTATE[GAMEVARS.KEYBOARD_CONTROLS["P2"].FIRE.CODE ] ;
+		if     (p2_left) { DOM.joystick2_canvas_ctx.clearRect(0,0,DOM.joystick2_canvas.width, DOM.joystick2_canvas.height); DOM.joystick2_canvas_ctx.drawImage(IMGCACHE.js_left         [0],0,0); }
+		else if(p2_right){ DOM.joystick2_canvas_ctx.clearRect(0,0,DOM.joystick2_canvas.width, DOM.joystick2_canvas.height); DOM.joystick2_canvas_ctx.drawImage(IMGCACHE.js_right        [0],0,0); }
+		else             { DOM.joystick2_canvas_ctx.clearRect(0,0,DOM.joystick2_canvas.width, DOM.joystick2_canvas.height); DOM.joystick2_canvas_ctx.drawImage(IMGCACHE.js_idle         [0],0,0); }
+		if     (p2_fire) { DOM.fire2_canvas_ctx    .clearRect(0,0,DOM.fire2_canvas.width    , DOM.fire2_canvas.height    ); DOM.fire2_canvas_ctx    .drawImage(IMGCACHE.button_pressed  [0],0,0); }
+		else             { DOM.fire2_canvas_ctx    .clearRect(0,0,DOM.fire2_canvas.width    , DOM.fire2_canvas.height    ); DOM.fire2_canvas_ctx    .drawImage(IMGCACHE.button_unpressed[0],0,0); }
+	},
+
+	//
 	gameloop               : function(tstamp){
 		// If NOT paused then request an animation frame and repeat the set Timeout.
 
-		if(!GAMEVARS.paused && GAMEVARS.pagevisible){
+		if( (!GAMEVARS.paused && !GAMEVARS.pausedOnMenu) && GAMEVARS.pagevisible){
 			// Can this frame be processed?
 			if( ! FUNCS.allowFrame(tstamp) ) {
 				// Schedule next animation frame.
@@ -692,14 +753,15 @@ let FUNCS = {
 			FUNCS.addShipShots();           //
 
 			// Update the debug data.
-			if(DOM.chk_debug.checked){
-				// Update all displayed debug data.
-				// DEBUG.updateDebugData();
+			if(DEBUGMODE && DEBUG.DOM.chk_debug.checked){
 				window.requestAnimationFrame(DEBUG.updateDebugData);
 			}
 
 			// Update the output canvas.
 			DOM.mainCanvas_ctx.drawImage(DOM.preMainCanvas, 0, 0);
+
+			// Update the displayed controls.
+			FUNCS.updateDisplayedControls();           //
 
 			// Schedule next animation frame.
 			GAMEVARS.raf_id = window.requestAnimationFrame(FUNCS.gameloop);
@@ -720,6 +782,51 @@ let DOM = {};
 // Used during initial load and init.
 let LOADER = {
 	//
+	toggleMenu                       : function(){
+		// Update the debug data.
+		if(DEBUGMODE && DEBUG.DOM.chk_debug.checked){
+			window.requestAnimationFrame(DEBUG.updateDebugData);
+		}
+
+		// Open the menu.
+		if( DOM.menu.classList.contains("closed") ){
+			//
+			DOM.menu.classList.remove('closed');
+			DOM.menu_tab.innerText="CLICK TO CLOSE MENU";
+			GAMEVARS.pausedOnMenu=true;
+
+			//
+			DOM.entireBodyDiv.classList.add("show");
+			DOM.entireBodyDiv.onclick=function(){
+				DOM.menu.classList.add('closed');
+				DOM.menu_tab.innerText="CLICK TO OPEN MENU";
+				GAMEVARS.pausedOnMenu=false;
+				DOM.entireBodyDiv.classList.remove("show");
+				DOM.entireBodyDiv.onclick=null;
+			};
+		}
+
+		// Close the menu.
+		else{
+			//
+			DOM.menu.classList.add('closed');
+			DOM.menu_tab.innerText="CLICK TO OPEN MENU";
+			GAMEVARS.pausedOnMenu=false;
+
+			//
+			DOM.entireBodyDiv.classList.remove("show");
+			DOM.entireBodyDiv.onclick=function(){
+				DOM.menu.classList.remove('closed');
+				DOM.menu_tab.innerText="CLICK TO CLOSE MENU";
+				GAMEVARS.pausedOnMenu=true;
+				DOM.entireBodyDiv.classList.add("show");
+				DOM.entireBodyDiv.onclick=null;
+			};
+		}
+
+	},
+
+	//
 	defaultDocumentTitle             : "",
 
 	// This should be run only once.
@@ -731,7 +838,9 @@ let LOADER = {
 		LOADER.populateDOM_cache();
 
 		//
-		DOM.currentFPS.innerText="FPS: " + GAMEVARS.fps + " ("+GAMEVARS.msPerFrame.toFixed(2)+" ms)";
+		if(DEBUGMODE){
+			DEBUG.DOM.currentFPS.innerText="FPS: " + GAMEVARS.fps + " ("+GAMEVARS.msPerFrame.toFixed(2)+" ms)";
+		}
 
 		// Load the graphics.
 		LOADER.loadGraphics().then(
@@ -746,6 +855,30 @@ let LOADER = {
 				LOADER.setpixelated(DOM.preMainCanvas);
 				DOM.preMainCanvas_ctx    = DOM.preMainCanvas.getContext('2d');
 
+				// Setup input canvases (player 1)
+				DOM.joystick1_canvas.width  = IMGCACHE.js_idle[0].width ;
+				DOM.joystick1_canvas.height = IMGCACHE.js_idle[0].height ;
+				LOADER.setpixelated(DOM.joystick1_canvas);
+				DOM.joystick1_canvas_ctx    = DOM.joystick1_canvas.getContext('2d', {'alpha':false});
+				DOM.joystick1_canvas_ctx.drawImage(IMGCACHE.js_idle[0],0,0);
+				DOM.fire1_canvas.width  = IMGCACHE.button_pressed[0].width  ;
+				DOM.fire1_canvas.height = IMGCACHE.button_pressed[0].height ;
+				LOADER.setpixelated(DOM.fire1_canvas);
+				DOM.fire1_canvas_ctx    = DOM.fire1_canvas.getContext('2d');
+				DOM.fire1_canvas_ctx.drawImage(IMGCACHE.button_unpressed[0],0,0);
+
+				// Setup input canvases (player 2)
+				DOM.joystick2_canvas.width  = IMGCACHE.js_idle[0].width ;
+				DOM.joystick2_canvas.height = IMGCACHE.js_idle[0].height ;
+				LOADER.setpixelated(DOM.joystick2_canvas);
+				DOM.joystick2_canvas_ctx    = DOM.joystick2_canvas.getContext('2d', {'alpha':false});
+				DOM.joystick2_canvas_ctx.drawImage(IMGCACHE.js_idle[0],0,0);
+				DOM.fire2_canvas.width  = IMGCACHE.button_pressed[0].width  ;
+				DOM.fire2_canvas.height = IMGCACHE.button_pressed[0].height ;
+				LOADER.setpixelated(DOM.fire2_canvas);
+				DOM.fire2_canvas_ctx    = DOM.fire2_canvas.getContext('2d');
+				DOM.fire2_canvas_ctx.drawImage(IMGCACHE.button_unpressed[0],0,0);
+
 				// Prevent the screen from scrolling when using the arrow keys to control the game.
 				window.addEventListener("keydown"  , LOADER.preventScroll, false);
 
@@ -758,7 +891,7 @@ let LOADER = {
 				window.addEventListener('blur' , LOADER.windowBlur  , false );
 
 				// DEBUG - Setup the mousemove listener for hovering over the canvas.
-				if(DEBUG.showCanvasCursorCoords){
+				if(DEBUGMODE && DEBUG.showCanvasCursorCoords){
 					DOM.mainCanvas.addEventListener('mousemove', DEBUG.getCanvasMousePosition, false);
 				}
 
@@ -768,6 +901,13 @@ let LOADER = {
 					function(){
 						LOADER.loadSoundFiles().then(
 							function(){
+								// Unhide the menu div.
+								DOM.menu.classList.add('ready');
+								DOM.menu_div.classList.add("available");
+
+								// Populate data in the menu.
+								LOADER.populateMenu_data();
+
 								// If the audio is ready then start the game.
 								if(GAMEVARS.audiocanplay){
 									// Reset game vars.
@@ -798,18 +938,56 @@ let LOADER = {
 		//
 		DOM.mainCanvas = document.getElementById("mainCanvas") ;
 		DOM.requestUserInteraction = document.getElementById("requestUserInteraction") ;
-		DOM.pauseState = document.getElementById("pauseState");
-		DOM.currentFPS = document.getElementById("currentFPS");
-		DOM.fps_select = document.getElementById("fps_select");
-
-		// DEBUG
-		DOM.chk_debug      = document.getElementById('chk_debug')      ;
-		DOM.mouseCoordsDiv = document.getElementById("mouseCoordsDiv") ;
-		DOM.debug_output1   = document.getElementById('debug_output1')   ;
-		DOM.debug_output2   = document.getElementById('debug_output2')   ;
 
 		// Non-attached DOM.
 		DOM.preMainCanvas  = document.createElement("canvas");
+
+		// Input controls canvas.
+		DOM.joystick1_canvas = document.getElementById("joystick1_canvas") ;
+		DOM.joystick2_canvas = document.getElementById("joystick2_canvas") ;
+		DOM.fire1_canvas     = document.getElementById("fire1_canvas")     ;
+		DOM.fire2_canvas     = document.getElementById("fire2_canvas")     ;
+
+		// MENU
+		DOM.menu_div = document.getElementById('menu_div');
+		DOM.menu     = document.getElementById('menu');
+		DOM.menu_tab = document.getElementById('menu_tab');
+
+		DOM.menu_player_size_normal = document.getElementById('menu_player_size_normal');
+		DOM.menu_player_size_large  = document.getElementById('menu_player_size_large');
+		DOM.menu_player_size_larger = document.getElementById('menu_player_size_larger');
+
+		//
+		DOM.entireBodyDiv = document.getElementById('entireBodyDiv');
+
+		if(DEBUGMODE){ DEBUG.populateDebugDOM(); }
+	},
+
+	populateMenu_data                : function(){
+		let canvas1 = DOM.menu_player_size_normal ;
+		let canvas2 = DOM.menu_player_size_large  ;
+		let canvas3 = DOM.menu_player_size_larger ;
+		let ctx1 = DOM.menu_player_size_normal.getContext('2d');
+		let ctx2 = DOM.menu_player_size_large .getContext('2d');
+		let ctx3 = DOM.menu_player_size_larger.getContext('2d');
+
+		// Set canvas width.
+		canvas1.width = IMGCACHE.player[0].width        ; canvas1.height = IMGCACHE.player[0].height        ;
+		canvas2.width = IMGCACHE.player_large[0].width  ; canvas2.height = IMGCACHE.player_large[0].height  ;
+		canvas3.width = IMGCACHE.player_larger[0].width ; canvas3.height = IMGCACHE.player_larger[0].height ;
+
+		// Set canvas CSS width. (Main canvas is square.)
+		let data1 = DOM.mainCanvas.getBoundingClientRect();
+		let data2 = DOM.mainCanvas.width;
+		let ratio = (data2/data1.width);
+		canvas1.style.width = Math.floor(canvas1.width / ratio)+"px" ; canvas1.style.height = Math.floor(canvas1.height / ratio)+"px";
+		canvas2.style.width = Math.floor(canvas2.width / ratio)+"px" ; canvas2.style.height = Math.floor(canvas2.height / ratio)+"px";
+		canvas3.style.width = Math.floor(canvas3.width / ratio)+"px" ; canvas3.style.height = Math.floor(canvas3.height / ratio)+"px";
+
+		// Draw
+		ctx1.drawImage(IMGCACHE.player[0], 0, 0);
+		ctx2.drawImage(IMGCACHE.player_large[0], 0, 0);
+		ctx3.drawImage(IMGCACHE.player_larger[0], 0, 0);
 	},
 
 	//
@@ -843,13 +1021,15 @@ let LOADER = {
 				"invader6" : [ { "x":8, "y":216, "w":32, "h":24, "nW":24, "nH":16 }, { "x":56, "y":216, "w":32, "h":24, "nW":24, "nH":16 } ],
 
 				// Alien Ship
-				"ship"    : [ { "x":8, "y":24, "w":32, "h":16, "nW":24, "nH":16 } ],
+				"ship"     : [ { "x":8, "y":24, "w":32, "h":16, "nW":24, "nH":16 } ],
 
 				// Player Ship
-				"player"   : [ { "x":8, "y":336, "w":32, "h":24, "nW":24*1, "nH":16 } ],
+				"player"       : [ { "x":8, "y":336, "w":32, "h":24, "nW":24*1  , "nH":16 } ],
+				"player_large" : [ { "x":8, "y":336, "w":32, "h":24, "nW":24*1.5, "nH":16 } ],
+				"player_larger": [ { "x":8, "y":336, "w":32, "h":24, "nW":24*2  , "nH":16 } ],
 
 				// Projectiles
-				"shot"    : [ { "x":22, "y":304, "w":4, "h":16, "nW":2, "nH":12 } ],
+				"shot"     : [ { "x":22, "y":304, "w":4, "h":16, "nW":2, "nH":12 } ],
 
 				// Barrier
 				"barrier"  : [ { "x":8, "y":256, "w":32, "h":40, "nW":32, "nH":32 } ],
@@ -858,6 +1038,15 @@ let LOADER = {
 				"hit1"     : [ { "x":56, "y":256, "w":32, "h":24, "nW":32, "nH":16 }, { "x":56, "y":288, "w":32, "h":24, "nW":32, "nH":16 } ],
 				"hit2"     : [ { "x":56, "y":256, "w":32, "h":24, "nW":32, "nH":16 }, { "x":56, "y":288, "w":32, "h":24, "nW":32, "nH":16 } ],
 				"hit3"     : [ { "x":56, "y":256, "w":32, "h":24, "nW":32, "nH":16 }, { "x":56, "y":288, "w":32, "h":24, "nW":32, "nH":16 } ],
+
+				// Joystick
+				"js_left"          : [ { "x":13*8, "y":21*8 , "w":4*8, "h":4*8, "nW":(4*8), "nH":(4*8) } ],
+				"js_idle"          : [ { "x":13*8, "y":26*8 , "w":4*8, "h":4*8, "nW":(4*8), "nH":(4*8) } ],
+				"js_right"         : [ { "x":13*8, "y":16*8 , "w":4*8, "h":4*8, "nW":(4*8), "nH":(4*8) } ],
+
+				// Buttons
+				"button_unpressed" : [ { "x":13*8, "y":6*8 , "w":4*8, "h":4*8, "nW":(4*8), "nH":(4*8) } ],
+				"button_pressed"   : [ { "x":13*8, "y":11*8, "w":4*8, "h":4*8, "nW":(4*8), "nH":(4*8) } ],
 			};
 
 			// Holds the sprite sheet image.
@@ -898,8 +1087,8 @@ let LOADER = {
 						let sHeight = rec.h ;
 						let dx      = 0 ;
 						let dy      = 0 ;
-						let dWidth  = rec.nW ;
-						let dHeight = rec.nH ;
+						let dWidth  = Math.ceil(rec.nW) ;
+						let dHeight = Math.ceil(rec.nH) ;
 
 						tmp_context.drawImage(images, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
 
@@ -1050,774 +1239,6 @@ let LOADER = {
 			resolve();
 		});
 	},
-
-};
-
-// For DEBUG.
-let DEBUG = {
-	//
-	showCanvasCursorCoords    : true,
-	getCanvasMousePosition    : function(evt){
-		if(!DOM.chk_debug.checked){ return; }
-
-		let mouseCoordsDiv = DOM.mouseCoordsDiv;
-
-		let getMousePos = function(canvas) {
-			let rect = canvas.getBoundingClientRect();
-
-			return {
-				// Only works correctly for a non-CSS stretched canvas.
-				// x: Math.floor(evt.clientX - rect.left),
-				// y: Math.floor(evt.clientY - rect.top )
-
-				// Works correctly for a CSS stretched canvas.
-				x: Math.floor((evt.clientX - rect.left) / (rect.right  - rect.left) * DOM.mainCanvas.width ),
-				y: Math.floor((evt.clientY - rect.top)  / (rect.bottom - rect.top)  * DOM.mainCanvas.height)
-			};
-		};
-
-		let mousePos = getMousePos(DOM.mainCanvas, evt);
-		let message = '(x:' + mousePos.x + ', y:' + mousePos.y + ')';
-		mouseCoordsDiv.innerText = message;
-	},
-
-	//
-	drawAllGraphics           : function(){
-		let images = [];
-		for(let key in IMGCACHE){
-			for(let rec of IMGCACHE[key]){
-				images.push(rec);
-			}
-		}
-
-		let x = 0;
-		let y = 0;
-
-		for(let img of images){
-			// Bounds check. Would the image be drawn over the boundry?
-			if(x+img.width >= DOM.preMainCanvas.width){ x=0; y+=32; }
-
-			// Draw the image.
-			DOM.preMainCanvas_ctx.drawImage(img, x, y);
-
-			// Add the img width plus some extra to x.
-			x+=img.width+8;
-		}
-
-	},
-
-	//
-	drawPreCanvasToPostCanvas : function(){
-		DOM.mainCanvas_ctx.drawImage(DOM.preMainCanvas, 0, 0);
-	},
-
-	// Adjust the FPS.
-	adjustFPS                 : function(dir, newFPS=30){
-		// The values may come in as text. Fix it here.
-		dir    = parseInt(dir   , 10) ;
-		newFPS = parseInt(newFPS, 10) ;
-
-		// Directly set?
-		if(dir == 0){
-			GAMEVARS.fps = newFPS ;
-			GAMEVARS.msPerFrame = 1000 / GAMEVARS.fps ;
-		}
-
-		// Raise up by 1?
-		else if(dir == 1){
-			if(GAMEVARS.fps + 1 <= 60){
-				GAMEVARS.fps = GAMEVARS.fps + 1 ;
-				GAMEVARS.msPerFrame = 1000 / GAMEVARS.fps ;
-			}
-		}
-
-		// Lower down by 1?
-		else if(dir == -1){
-			if(GAMEVARS.fps - 1 > 0){
-				GAMEVARS.fps = GAMEVARS.fps - 1 ;
-				GAMEVARS.msPerFrame = 1000 / GAMEVARS.fps ;
-			}
-		}
-
-		// Update the displayed FPS.
-		if(dir!=0){ DOM.fps_select.value=""; }
-		DOM.currentFPS.innerText="FPS: " + GAMEVARS.fps + " ("+GAMEVARS.msPerFrame.toFixed(2)+" ms)";
-	},
-
-	//
-	updateDebugData           : function(){
-		// Table generators.
-		let createTable_type1 = function (headers=[], data={}, caption="", width=400){
-			// Create the table.
-			let table = document.createElement("table");
-			table.style.width=width+"px";
-
-			let captionElem = document.createElement("caption");
-			captionElem.style.width=(width-2)+"px";
-			captionElem.innerText=caption;
-			table.appendChild(captionElem);
-
-			// One row for each var.
-			headers.forEach(function(d,i,a){
-				let row = table.insertRow(table.rows.length);
-				let cell_th = document.createElement("th");
-				let cell_td = document.createElement("td");
-
-				cell_th.style["vertical-align"] = "top";
-
-				// Dividers should be all black.
-				if(d==" ")      {
-					row.style["background-color"]="black";
-					row.style["color"]="black";
-					row.style["font-size"]="2px";
-
-					// cell_th.style["background-color"]="black";
-					// cell_th.style["color"]="black";
-					// cell_th.style["font-size"]="2px";
-					// cell_td.style["background-color"]="black";
-					// cell_td.style["color"]="black";
-					// cell_td.style["font-size"]="2px";
-
-					cell_th.innerText = "-";
-					cell_td.innerText = "-";
-				}
-				else{
-					cell_th.innerText = d;
-					cell_td.innerText = data[d];
-				}
-
-				row.appendChild(cell_th);
-				row.appendChild(cell_td);
-			});
-
-			// Return the table.
-			return table;
-		};
-		let createTable_type2 = function (headers=[], data=[], caption="", width=400){
-			// Create the table.
-			let table = document.createElement("table");
-			table.style.width=width+"px";
-
-			let captionElem = document.createElement("caption");
-			captionElem.style.width=(width-2)+"px";
-			captionElem.innerText=caption;
-			table.appendChild(captionElem);
-
-			// Create the headers.
-			let row = table.insertRow(table.rows.length);
-
-			headers.forEach(function(d,i,a){
-				// let cell = row.insertCell(i);
-				let cell = document.createElement("th");
-				cell.innerText = d;
-				row.appendChild(cell);
-			});
-
-			// Create the data row.
-			data.forEach(function(d1,i1,a1){
-				row = table.insertRow(table.rows.length);
-				headers.forEach(function(d2,i2,a2){
-					let cell = document.createElement("td");
-					cell.innerText = d1[d2];
-					row.appendChild(cell);
-				});
-			});
-
-			// Return the table.
-			return table;
-		};
-		// Data generators for the table generators.
-		let shots             = function(){
-			let data = {
-				"AI" : [],
-				"AS" : [],
-				"P1" : [],
-				"P2" : [],
-			};
-			GAMEVARS.SHOTS.forEach(function(d,i,a){
-				let newRec = {
-					"i"          : i            ,
-					"x"          : d.x          ,
-					"y"          : d.y          ,
-					"origin"     : d.origin     ,
-					"oob"        : d.removeThis ,
-				};
-
-				switch(newRec.origin){
-					case "AI" : { data["AI"].push(newRec); break; }
-					case "AS" : { data["AS"].push(newRec); break; }
-					case "P1" : { data["P1"].push(newRec); break; }
-					case "P2" : { data["P2"].push(newRec); break; }
-					default   : { break; }
-				}
-			});
-
-			let headers = [
-				"i"          ,
-				"x"          ,
-				"y"          ,
-				"origin"     ,
-				"oob" ,
-			];
-
-			let table1 = createTable_type2( headers, data["AI"], "Shots (AI) ("+data["AI"].length+")", 135 );
-			let table2 = createTable_type2( headers, data["AS"], "Shots (AS) ("+data["AS"].length+")", 135 );
-			let table3 = createTable_type2( headers, data["P1"], "Shots (P1) ("+data["P1"].length+")", 135 );
-			let table4 = createTable_type2( headers, data["P2"], "Shots (P2) ("+data["P2"].length+")", 135 );
-
-			table1.classList.add("debugTable1");
-			table2.classList.add("debugTable1");
-			table3.classList.add("debugTable1");
-			table4.classList.add("debugTable1");
-
-			let div = document.createElement("div");
-			div.classList.add("debugDiv_container");
-			div.appendChild(table1);
-			div.appendChild(table2);
-			// div.appendChild( document.createElement("br"));
-			div.appendChild(table3);
-			div.appendChild(table4);
-
-			// Return the table.
-			return {
-				"div" : div ,
-			};
-		};
-		let players           = function(){
-			let data = {
-				"P1" : [],
-				"P2" : [],
-			};
-			GAMEVARS.PLAYERS.forEach(function(d,i,a){
-				let newRec = {
-					"i"           : i             ,
-					"x"           : d.x           ,
-					"y"           : d.y           ,
-					"imgCacheKey" : d.imgCacheKey ,
-					"p"           : d.playernum   ,
-					"origin"      : d.origin      ,
-					"shots"       : d.shots       ,
-					"hits"        : d.hits        ,
-					"acc"         : d.accuracy    ,
-					"score"       : d.score       ,
-				};
-
-				switch(newRec.origin){
-					case "P1" : { data["P1"].push(newRec); break; }
-					case "P2" : { data["P2"].push(newRec); break; }
-					default   : { console.log("no origin match"); break; }
-				}
-			});
-
-			let headers = [
-				"i"           ,
-				"x"           ,
-				"y"           ,
-				"imgCacheKey" ,
-				"p"           ,
-				"shots"       ,
-				"hits"        ,
-				"acc"         ,
-				"score"       ,
-			];
-
-			let table3 = createTable_type2( headers, data["P1"], "Player (P1) ("+data["P1"].length+")", 275 );
-			let table4 = createTable_type2( headers, data["P2"], "Player (P2) ("+data["P2"].length+")", 275 );
-
-			table3.classList.add("debugTable1");
-			table4.classList.add("debugTable1");
-
-			let div = document.createElement("div");
-			div.classList.add("debugDiv_container");
-			// div.appendChild( document.createElement("br"));
-			div.appendChild(table3);
-			div.appendChild(table4);
-
-			// Return the table.
-			return {
-				"div" : div ,
-			};
-		};
-		let invaders          = function(){
-			let dims = {
-				"w": IMGCACHE["invader1"][0].width  ,
-				"h": IMGCACHE["invader1"][0].height ,
-				"spacing_x"  : GAMEVARS.invader_spacing_x  ,
-				"spacing_y"  : GAMEVARS.invader_spacing_y  ,
-				"shot_vely" : GAMEVARS.invader_shot_vely ,
-				"fmax"       : GAMEVARS.invader_fmax       ,
-			};
-
-			let mapFunction = function(d,i,a){
-				// let dir = (Math.sign(d.dir) == 1 ? 'R' : 'L') ;
-				let dir = d.dir;
-				let frame = d.frameslatency + "/" + dims.fmax;
-				let x = d.x;
-				let y = d.y;
-
-				return {
-					"i"        : i            ,
-					"shots"    : d.shots ,
-					"dir"      : dir          ,
-					"f"        : frame        ,
-					"x"        : x            ,
-					"y"        : y            ,
-					"dead"     : d.removeThis ,
-					"fnum"     : d.framenum   ,
-				};
-			};
-
-			let headers = [
-				"i",
-				"shots",
-				"dir"  ,
-				"f"    ,
-				"x"    ,
-				"y"    ,
-				"dead",
-				"fnum",
-			];
-
-			let data = GAMEVARS.INVADERS.map(mapFunction);
-
-			let len = data.length;
-			let data1 = data.splice(0, len/2);
-			let data2 = data.splice(0, len/2);
-
-			let table1 = createTable_type2( headers, data1, "Invaders (group 1)", 275 );
-			let table2 = createTable_type2( headers, data2, "Invaders (group 2)", 275 );
-
-			let div = document.createElement("div");
-			div.classList.add("debugDiv_container");
-			table1.classList.add("debugTable1");
-			table2.classList.add("debugTable1");
-			div.appendChild(table1);
-			div.appendChild(table2);
-
-			// Return the table.
-			return {
-				"div" : div ,
-			};
-		};
-		let ships             = function(){
-			let dims = {
-				"w": IMGCACHE["ship"][0].width  ,
-				"h": IMGCACHE["ship"][0].height ,
-				"spacing_x"  : GAMEVARS.invader_spacing_x  ,
-				"spacing_y"  : GAMEVARS.invader_spacing_y  ,
-				"shot_vely" : GAMEVARS.invader_shot_vely ,
-				"fmax"       : GAMEVARS.invader_fmax       ,
-			};
-
-			let mapFunction = function(d,i,a){
-				// let dir = (Math.sign(d.dir) == 1 ? 'R' : 'L') ;
-				let dir = d.dir;
-				let frame = d.frameslatency + "/" + dims.fmax;
-				let x = d.x;
-				let y = d.y;
-
-				return {
-					"i"        : i            ,
-					"shots"    : d.shots ,
-					"dir"      : dir          ,
-					"f"        : frame        ,
-					"x"        : x            ,
-					"y"        : y            ,
-					"dead"     : d.removeThis ,
-					"fnum"     : d.framenum   ,
-				};
-			};
-
-			let headers = [
-				"i",
-				"shots",
-				"dir"  ,
-				"f"    ,
-				"x"    ,
-				"y"    ,
-				"dead",
-				"fnum",
-			];
-
-			let data = GAMEVARS.SHIPS.map(mapFunction);
-
-			let table1 = createTable_type2( headers, data, "Ships", 275 );
-
-			let div = document.createElement("div");
-			div.classList.add("debugDiv_container");
-			table1.classList.add("debugTable1");
-			// table2.classList.add("debugTable1");
-			div.appendChild(table1);
-			// div.appendChild(table2);
-
-			// Return the table.
-			return {
-				"div" : div ,
-			};
-		};
-		// ERROR HERE (no dims.fmax)
-		let barriers          = function(){
-			let dims = {
-				"w": IMGCACHE["barrier"][0].width  ,
-				"h": IMGCACHE["barrier"][0].height ,
-			};
-
-			let mapFunction = function(d,i,a){
-				// let dir = (Math.sign(d.dir) == 1 ? 'R' : 'L') ;
-				let dir = d.dir;
-				let frame = d.frameslatency + "/" + dims.fmax;
-				let x = d.x;
-				let y = d.y;
-
-				return {
-					"i"        : i            ,
-					"x"        : x            ,
-					"y"        : y            ,
-					"type"     : d.type       ,
-				};
-			};
-
-			let headers = [
-				"i"    ,
-				"x"    ,
-				"y"    ,
-				"type" ,
-			];
-
-			let data = GAMEVARS.BARRIERS.map(mapFunction);
-
-			let table1 = createTable_type2( headers, data, "Barriers", 275 );
-
-			let div = document.createElement("div");
-			div.classList.add("debugDiv_container");
-			table1.classList.add("debugTable1");
-			div.appendChild(table1);
-
-			// Return the table.
-			return {
-				"div" : div ,
-			};
-		};
-		let info              = function(){
-			let table1 = createTable_type1(
-				[
-					"raf_id"                  ,
-					"last_raf_tstamp"         ,
-					"paused"                  ,
-					"pagevisible"             ,
-					"audiocanplay"            ,
-					"fps"                     ,
-					"msPerFrame"              ,
-					"gamestate_main"          ,
-					"gamestate_sub1"          ,
-				],
-				{
-					"raf_id"                  : GAMEVARS.raf_id                           ,
-					"last_raf_tstamp"         : GAMEVARS.last_raf_tstamp                  ,
-					"paused"                  : GAMEVARS.paused                           ,
-					"pagevisible"             : GAMEVARS.pagevisible                      ,
-					"audiocanplay"            : GAMEVARS.audiocanplay                     ,
-					"fps"                     : GAMEVARS.fps                              ,
-					"msPerFrame"              : GAMEVARS.msPerFrame.toFixed(2)            ,
-					"gamestate_main"          : GAMEVARS.gamestate_main                   ,
-					"gamestate_sub1"          : GAMEVARS.gamestate_sub1                   ,
-				},
-				"GAMEVARS (VARS)",
-				175
-			);
-
-			let table2 = createTable_type1(
-				[
-					"lastFire"       ,
-					"nextFire"       ,
-					"minWait"        ,
-					"maxWait"        ,
-					"maxProjectiles" ,
-				],
-				{
-					"lastFire"       : GAMEVARS.invader_fire_info.lastFire       ,
-					"nextFire"       : GAMEVARS.invader_fire_info.nextFire       ,
-					"minWait"        : GAMEVARS.invader_fire_info.minWait        ,
-					"maxWait"        : GAMEVARS.invader_fire_info.maxWait        ,
-					"maxProjectiles" : GAMEVARS.invader_fire_info.maxProjectiles ,
-				},
-				"invader_fire_info",
-				125
-			);
-
-			let table3 = createTable_type1(
-				[
-					"lastFire"          ,
-					"nextFire"          ,
-					"minWait"           ,
-					"maxWait"           ,
-					"maxProjectiles"    ,
-				],
-				{
-					"lastFire"          : GAMEVARS.ship_fire_info.lastFire          ,
-					"nextFire"          : GAMEVARS.ship_fire_info.nextFire          ,
-					"minWait"           : GAMEVARS.ship_fire_info.minWait           ,
-					"maxWait"           : GAMEVARS.ship_fire_info.maxWait           ,
-					"maxProjectiles"    : GAMEVARS.ship_fire_info.maxProjectiles    ,
-				},
-				"ship_fire_info",
-				125
-			);
-
-			let table4 = createTable_type1(
-				[
-					"invader_velx"     ,
-					"invader_vely"     ,
-					"invader_spacing_x",
-					"invader_spacing_y",
-					"invader_shot_vely",
-					"invader_fmax"     ,
-					"ship_velx"        ,
-					"ship_shot_vely"   ,
-					"player_xvel"      ,
-					"player_shot_vely" ,
-					"gameover_bottom"  ,
-					"barrier_top"      ,
-					"maxShots_PLAYERS" ,
-				],
-				{
-					"invader_velx"      : GAMEVARS.invader_velx      ,
-					"invader_vely"      : GAMEVARS.invader_vely      ,
-					"invader_spacing_x" : GAMEVARS.invader_spacing_x ,
-					"invader_spacing_y" : GAMEVARS.invader_spacing_y ,
-					"invader_shot_vely" : GAMEVARS.invader_shot_vely ,
-					"invader_fmax"      : GAMEVARS.invader_fmax      ,
-					"ship_velx"         : GAMEVARS.ship_velx         ,
-					"ship_shot_vely"    : GAMEVARS.ship_shot_vely    ,
-					"player_xvel"       : GAMEVARS.player_xvel       ,
-					"player_shot_vely"  : GAMEVARS.player_shot_vely  ,
-					"gameover_bottom"   : GAMEVARS.gameover_bottom   ,
-					"barrier_top"       : GAMEVARS.barrier_top       ,
-					"maxShots_PLAYERS"  : GAMEVARS.maxShots_PLAYERS  ,
-				},
-				"GAMEVARS (CONSTS)",
-				175
-			);
-
-			let table5 = createTable_type1(
-				[
-					"P1" ,
-					"P2" ,
-					"AI" ,
-					"AS" ,
-				],
-				{
-					"P1" : GAMEVARS.shotCounts["P1"]      ,
-					"P2" : GAMEVARS.shotCounts["P2"]      ,
-					"AI" : GAMEVARS.shotCounts["AI"]      ,
-					"AS" : GAMEVARS.shotCounts["AS"]      ,
-				},
-				"SHOT COUNTS",
-				100
-			);
-
-
-			// for(let key in GAMEVARS){
-			// 	if(["object", "function"].indexOf( typeof GAMEVARS[key] ) == -1) {
-			// 		console.log(key.padEnd(20, " "), "", typeof GAMEVARS[key]);
-			// 	}
-			// }
-
-			table1.classList.add("debugTable1");
-			table2.classList.add("debugTable1");
-			table3.classList.add("debugTable1");
-			table4.classList.add("debugTable1");
-			table5.classList.add("debugTable1");
-
-			let div = document.createElement("div");
-			div.classList.add("debugDiv_container");
-			div.appendChild(table2);
-			div.appendChild(table3);
-			div.appendChild(table5);
-			div.appendChild( document.createElement("br") );
-			div.appendChild(table1);
-			div.appendChild(table4);
-
-			// Return the table.
-			return { "div" : div };
-
-		};
-
-		let hits        = function(){
-			// GAMEVARS.HITS
-
-			let mapFunction = function(d,i,a){
-				// let dir = (Math.sign(d.dir) == 1 ? 'R' : 'L') ;
-				let x           = d.x;
-				let y           = d.y;
-				let hitType = d.hitType;
-				let w           = IMGCACHE[d.hitType][0].width ;
-				let h           = IMGCACHE[d.hitType][0].height ;
-				let rep         = d.animationRepeat + "/" + d.animationRepeatsMax;
-				let lat         = d.frameslatency + "/" + d.framesLatencyMax;
-				let frame       = d.framenum;
-
-				return {
-					"i"           : i            ,
-					"x"           : x            ,
-					"y"           : y            ,
-					"type"        : hitType  ,
-					"w"           : w            ,
-					"h"           : h            ,
-					"rep"         : rep        ,
-					"frame"       : frame        ,
-					"lat"         : lat          ,
-					"removeThis"  : d.removeThis ,
-				};
-			};
-
-			let headers = [
-				"i"           ,
-				"x"           ,
-				"y"           ,
-				"type"        ,
-				"w"           ,
-				"h"           ,
-				"rep"         ,
-				"frame"       ,
-				"lat"         ,
-				"removeThis"  ,
-			];
-
-			let data = GAMEVARS.HITS.map(mapFunction);
-
-			let table1 = createTable_type2( headers, data, "HITS", 275 );
-
-			let div = document.createElement("div");
-			div.classList.add("debugDiv_container");
-			table1.classList.add("debugTable1");
-			div.appendChild(table1);
-
-			// Return the table.
-			return {
-				"div" : div ,
-			};
-
-		};
-
-		let html_shots    = shots();
-		let html_players  = players();
-		let html_ships    = ships();
-		let html_invaders = invaders();
-		let html_info     = info();
-		let html_barriers = barriers();
-		let html_hits     = hits();
-
-		DOM.debug_output1.innerHTML="";
-		DOM.debug_output1.appendChild(html_players.div);
-		DOM.debug_output1.appendChild(html_invaders.div);
-		DOM.debug_output1.appendChild(html_ships.div);
-		DOM.debug_output1.appendChild(html_barriers.div);
-		DOM.debug_output1.appendChild(html_hits.div);
-
-		DOM.debug_output2.innerHTML="";
-		DOM.debug_output2.appendChild(html_info.div);
-		DOM.debug_output2.appendChild(html_shots.div);
-
-		// Toggle the paused indicator.
-		let pauseState = DOM.pauseState.innerText;
-		if     (pauseState==" --"){ DOM.pauseState.innerText = " ==" ;  }
-		else if(pauseState==" =="){ DOM.pauseState.innerText = " --" ;  }
-	},
-
-	demoEntities              : function(){
-		FUNCS.startGameFromBeginning();
-
-		// Player 1
-		FUNCS.addPlayer(1);
-
-		// Player 2
-		FUNCS.addPlayer(2);
-
-		// Invader grid
-		FUNCS.createInvaderGrid();
-
-		// Ship
-		// FUNCS.createShip();
-
-		// Barriers
-		FUNCS.createBarrier(0, 1);
-		FUNCS.createBarrier(1, 1);
-		FUNCS.createBarrier(2, 1);
-	},
-
-	lowerInvaders             : function(){
-		// let w = IMGCACHE["invader1"][0].width  ;
-		let h = IMGCACHE["invader1"][0].height ;
-		for(let invader of GAMEVARS.INVADERS){
-			if(invader.removeThis){ continue; }
-			invader.y += Math.ceil(h/2);
-		}
-	},
-
-	raiseInvaders             : function(){
-		// let w = IMGCACHE["invader1"][0].width  ;
-		let h = IMGCACHE["invader1"][0].height ;
-		for(let invader of GAMEVARS.INVADERS){
-			if(invader.removeThis){ continue; }
-			invader.y -= Math.ceil(h/2);
-		}
-	},
-
-	removeFirstInvader        : function(){
-		for(let i=0; i<GAMEVARS.INVADERS.length; i+=1){
-			let invader = GAMEVARS.INVADERS[i];
-			if(invader.removeThis){ continue; }
-
-			// Create new hit.
-			let img = IMGCACHE[invader.imgCacheKey][invader.framenum];
-
-			// Add the new hit into the game.
-			GAMEVARS.HITS.push(
-				new Hit(
-					invader.x           , // "x"
-					invader.y           , // "y"
-					img.width           , // "w"
-					img.height          , // "h"
-					invader.hitType  // "hitType"
-				)
-			);
-
-			// Set the invader to be removed.
-			// invader.removeThis=true;
-			invader.resetForRemoval();
-
-			break;
-		}
-	},
-
-	removeLastInvader         : function(){
-		for(let i=GAMEVARS.INVADERS.length-1; i>=0; i-=1){
-			let invader = GAMEVARS.INVADERS[i];
-			if(invader.removeThis){ continue; }
-
-			// Create new hit.
-			let img = IMGCACHE[invader.imgCacheKey][invader.framenum];
-
-			// Add the new hit into the game.
-			GAMEVARS.HITS.push(
-				new Hit(
-					invader.x           , // "x"
-					invader.y           , // "y"
-					img.width           , // "w"
-					img.height          , // "h"
-					invader.hitType  // "hitType"
-				)
-			);
-
-			// Set the invader to be removed.
-			// invader.removeThis=true;
-			invader.resetForRemoval();
-
-			break;
-		}
-	},
-
 };
 
 // ***** User-defined objects used.

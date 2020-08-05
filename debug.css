@@ -1,0 +1,57 @@
+/* DEBUG */
+
+#debugDiv {
+    display: inline-block;
+    text-align: left;
+    background-color: #0d0e0e;
+    color: black;
+    min-height: 540px;
+    vertical-align: top;
+    padding: 5px;
+    background-color: #93522a;
+}
+
+.debugDivSection {
+    display: inline-block;
+    vertical-align: top;
+    background-color: #843200;
+    background-color: #93522a;
+    background-color: hsl(23 56% 45% / 1);
+    width: 560px;
+    max-width: 560px;
+    min-height: 540px;
+}
+
+.debugTable1 {
+    font-size: 10px;
+    font-family: monospace;
+    display: inline-block;
+    border: 1px solid black;
+    margin: 1px;
+    background-color: #d8d8b6;
+    vertical-align: top;
+    color: black;
+    padding: 0px;
+}
+
+.debugTable1 caption {
+    font-weight: bold;
+    text-decoration: underline;
+    background-color: #8c8c5b;
+    text-align: center;
+}
+
+.debugTable1 th {
+    text-decoration: underline;
+}
+
+.debugTable1 td,
+.debugTable1 th,
+.debugTable1 tr {
+    padding: 0px;
+    margin: 0px;
+}
+
+.debugButton1 {
+    width: 150px;
+}
