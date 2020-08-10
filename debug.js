@@ -2,6 +2,10 @@
 
 // For DEBUG.
 let DEBUG = {
+	// Debug update flags.
+	lastDebugUpdated     : 0,
+	intervalDebugUpdated : 250,
+
 	//
 	DOM : {
 	},
@@ -14,6 +18,15 @@ let DEBUG = {
 		DEBUG.DOM.mouseCoordsDiv = document.getElementById("mouseCoordsDiv") ;
 		DEBUG.DOM.debug_output1  = document.getElementById('debug_output1')  ;
 		DEBUG.DOM.debug_output2  = document.getElementById('debug_output2')  ;
+
+		DEBUG.DOM.mouseCoords_p1_js   = document.getElementById("mouseCoords_p1_js") ;
+		DEBUG.DOM.mouseCoords_p2_js   = document.getElementById("mouseCoords_p2_js") ;
+		DEBUG.DOM.mouseCoords_p1_fire = document.getElementById("mouseCoords_p1_fire") ;
+		DEBUG.DOM.mouseCoords_p2_fire = document.getElementById("mouseCoords_p2_fire") ;
+
+		DEBUG.DOM.debugLatency_select = document.getElementById('debugLatency_select')  ;
+
+		DEBUG.DOM.intervalDebugUpdated = document.getElementById('currentIntervalDebug')  ;
 	},
 
 	//
@@ -21,7 +34,17 @@ let DEBUG = {
 	getCanvasMousePosition    : function(evt){
 		if(!DEBUG.DOM.chk_debug.checked){ return; }
 
-		let mouseCoordsDiv = DEBUG.DOM.mouseCoordsDiv;
+		let mouseCoordsDiv;
+		let canvasSrc;
+
+		switch(evt.srcElement.id){
+			case "mainCanvas"       : { mouseCoordsDiv = DEBUG.DOM.mouseCoordsDiv      ; canvasSrc = evt.srcElement ; break; }
+			case "joystick1_canvas" : { mouseCoordsDiv = DEBUG.DOM.mouseCoords_p1_js   ; canvasSrc = evt.srcElement ; break; }
+			case "joystick2_canvas" : { mouseCoordsDiv = DEBUG.DOM.mouseCoords_p2_js   ; canvasSrc = evt.srcElement ; break; }
+			case "fire1_canvas"     : { mouseCoordsDiv = DEBUG.DOM.mouseCoords_p1_fire ; canvasSrc = evt.srcElement ; break; }
+			case "fire2_canvas"     : { mouseCoordsDiv = DEBUG.DOM.mouseCoords_p2_fire ; canvasSrc = evt.srcElement ; break; }
+			default : { return; break; }
+		}
 
 		let getMousePos = function(canvas) {
 			let rect = canvas.getBoundingClientRect();
@@ -32,15 +55,37 @@ let DEBUG = {
 				// y: Math.floor(evt.clientY - rect.top )
 
 				// Works correctly for a CSS stretched canvas.
-				x: Math.floor((evt.clientX - rect.left) / (rect.right  - rect.left) * DOM.mainCanvas.width ),
-				y: Math.floor((evt.clientY - rect.top)  / (rect.bottom - rect.top)  * DOM.mainCanvas.height)
+				x: Math.floor((evt.clientX - rect.left) / (rect.right  - rect.left) * canvas.width ),
+				y: Math.floor((evt.clientY - rect.top)  / (rect.bottom - rect.top)  * canvas.height)
 			};
 		};
 
-		let mousePos = getMousePos(DOM.mainCanvas, evt);
+		let mousePos = getMousePos(canvasSrc, evt);
 		let message = '(x:' + mousePos.x + ', y:' + mousePos.y + ')';
+
 		mouseCoordsDiv.innerText = message;
 	},
+	resetCanvasMousePositions  : function(evt){
+		if(!DEBUG.DOM.chk_debug.checked){ return; }
+
+		let mouseCoordsDiv;
+
+		switch(evt.srcElement.id){
+			case "mainCanvas"       : { mouseCoordsDiv = DEBUG.DOM.mouseCoordsDiv      ; break; }
+			case "joystick1_canvas" : { mouseCoordsDiv = DEBUG.DOM.mouseCoords_p1_js   ; break; }
+			case "joystick2_canvas" : { mouseCoordsDiv = DEBUG.DOM.mouseCoords_p2_js   ; break; }
+			case "fire1_canvas"     : { mouseCoordsDiv = DEBUG.DOM.mouseCoords_p1_fire ; break; }
+			case "fire2_canvas"     : { mouseCoordsDiv = DEBUG.DOM.mouseCoords_p2_fire ; break; }
+			default : { return; break; }
+		}
+
+		mouseCoordsDiv.innerText="";
+	},
+
+	// DEBUG.DOM.mouseCoords_p1_js
+	// DEBUG.DOM.mouseCoords_p2_js
+	// DEBUG.DOM.mouseCoords_p1_fire
+	// DEBUG.DOM.mouseCoords_p2_fire
 
 	//
 	drawAllGraphics           : function(){
@@ -102,11 +147,15 @@ let DEBUG = {
 
 		// Update the displayed FPS.
 		if(dir!=0){ DEBUG.DOM.fps_select.value=""; }
-		DEBUG.DOM.currentFPS.innerText="FPS: " + GAMEVARS.fps + " ("+GAMEVARS.msPerFrame.toFixed(2)+" ms)";
+		DEBUG.DOM.currentFPS.innerText="" + GAMEVARS.fps + " ("+GAMEVARS.msPerFrame.toFixed(2)+" ms)";
 	},
 
 	//
 	updateDebugData           : function(){
+		// Update-limiter for the debug data display.
+		let now = performance.now();
+		if( !(now-DEBUG.lastDebugUpdated >= DEBUG.intervalDebugUpdated) ){ return; }
+
 		// Table generators.
 		let createTable_type1 = function (headers=[], data={}, caption="", width=400){
 			// Create the table.
@@ -235,7 +284,6 @@ let DEBUG = {
 			div.classList.add("debugDiv_container");
 			div.appendChild(table1);
 			div.appendChild(table2);
-			// div.appendChild( document.createElement("br"));
 			div.appendChild(table3);
 			div.appendChild(table4);
 
@@ -425,8 +473,8 @@ let DEBUG = {
 
 			let mapFunction = function(d,i,a){
 				// let dir = (Math.sign(d.dir) == 1 ? 'R' : 'L') ;
-				let dir = d.dir;
-				let frame = d.frameslatency + "/" + dims.fmax;
+				// let dir = d.dir;
+				// let frame = d.frameslatency + "/" + dims.fmax;
 				let x = d.x;
 				let y = d.y;
 
@@ -464,28 +512,30 @@ let DEBUG = {
 
 			let table1 = createTable_type1(
 				[
-					"raf_id"                  ,
-					// "last_raf_tstamp"         ,
-					"paused"                  ,
-					"pausedOnMenu"            ,
-					"pagevisible"             ,
-					"audiocanplay"            ,
-					"fps"                     ,
-					"msPerFrame"              ,
-					"gamestate_main"          ,
-					"gamestate_sub1"          ,
+					"raf_id"          ,
+					// "last_raf_tstamp" ,
+					"paused"          ,
+					"pausedOnMenu"    ,
+					"pagevisible"     ,
+					"audiocanplay"    ,
+					"fps"             ,
+					"msPerFrame"      ,
+					"gamestate_main"  ,
+					"gamestate_sub1"  ,
+					"lastDebug"       ,
 				],
 				{
-					"raf_id"                  : GAMEVARS.raf_id                           ,
-					// "last_raf_tstamp"         : GAMEVARS.last_raf_tstamp                  ,
-					"paused"                  : GAMEVARS.paused                           ,
-					"pausedOnMenu"            : GAMEVARS.pausedOnMenu                     ,
-					"pagevisible"             : GAMEVARS.pagevisible                      ,
-					"audiocanplay"            : GAMEVARS.audiocanplay                     ,
-					"fps"                     : GAMEVARS.fps                              ,
-					"msPerFrame"              : GAMEVARS.msPerFrame.toFixed(2)            ,
-					"gamestate_main"          : GAMEVARS.gamestate_main                   ,
-					"gamestate_sub1"          : GAMEVARS.gamestate_sub1                   ,
+					"raf_id"          : GAMEVARS.raf_id                ,
+					// "last_raf_tstamp" : GAMEVARS.last_raf_tstamp       ,
+					"paused"          : GAMEVARS.paused                ,
+					"pausedOnMenu"    : GAMEVARS.pausedOnMenu          ,
+					"pagevisible"     : GAMEVARS.pagevisible           ,
+					"audiocanplay"    : GAMEVARS.audiocanplay          ,
+					"fps"             : GAMEVARS.fps                   ,
+					"msPerFrame"      : GAMEVARS.msPerFrame.toFixed(2) ,
+					"gamestate_main"  : GAMEVARS.gamestate_main        ,
+					"gamestate_sub1"  : GAMEVARS.gamestate_sub1        ,
+					"lastDebug"       : Math.floor(DEBUG.lastDebugUpdated)         ,
 				},
 				"GAMEVARS (VARS)",
 				sharedWidth
@@ -581,34 +631,117 @@ let DEBUG = {
 				sharedWidth
 			);
 
+			let P1_LEFT  = GAMEVARS.KEYSTATE[GAMEVARS.KEYBOARD_CONTROLS["P1"].LEFT .CODE ] ? true : "";
+			let P1_RIGHT = GAMEVARS.KEYSTATE[GAMEVARS.KEYBOARD_CONTROLS["P1"].RIGHT.CODE ] ? true : "";
+			let P1_FIRE  = GAMEVARS.KEYSTATE[GAMEVARS.KEYBOARD_CONTROLS["P1"].FIRE .CODE ] ? true : "";
+			let P2_LEFT  = GAMEVARS.KEYSTATE[GAMEVARS.KEYBOARD_CONTROLS["P2"].LEFT .CODE ] ? true : "";
+			let P2_RIGHT = GAMEVARS.KEYSTATE[GAMEVARS.KEYBOARD_CONTROLS["P2"].RIGHT.CODE ] ? true : "";
+			let P2_FIRE  = GAMEVARS.KEYSTATE[GAMEVARS.KEYBOARD_CONTROLS["P2"].FIRE .CODE ] ? true : "";
+			let P1_IDLE  = !P1_LEFT && !P1_RIGHT ? true : "";
+			let P2_IDLE  = !P2_LEFT && !P2_RIGHT ? true : "";
+			let table6 = createTable_type1(
+				[
+					"P1_IDLE"  ,
+					"P2_IDLE"  ,
+					"-----",
+					"P1_LEFT"  ,
+					"P1_RIGHT" ,
+					"P1_FIRE"  ,
+					"-----",
+					"P2_LEFT"  ,
+					"P2_RIGHT" ,
+					"P2_FIRE"  ,
+					"-----"    ,
+					"P1_XY"    ,
+					"P2_XY"    ,
+					"-----"    ,
+					"P1_sPos"  ,
+					"P2_sPos"  ,
+				],
+				{
+					"-----":"-----",
+					"P1_IDLE"  : P1_IDLE  ,
+					"P2_IDLE"  : P2_IDLE  ,
+					// "-----":"-----",
+					"P1_LEFT"  : P1_LEFT  ,
+					"P1_RIGHT" : P1_RIGHT ,
+					"P1_FIRE"  : P1_FIRE  ,
+					// "-----":"-----",
+					"P2_LEFT"  : P2_LEFT  ,
+					"P2_RIGHT" : P2_RIGHT ,
+					"P2_FIRE"  : P2_FIRE  ,
+					// "-----":"-----",
+					"P1_XY"    : "x:"+GAMEVARS.JOYSTICKS[0].currentPos.x + ", y:"+GAMEVARS.JOYSTICKS[0].currentPos.y  ,
+					"P2_XY"    : "x:"+GAMEVARS.JOYSTICKS[1].currentPos.x + ", y:"+GAMEVARS.JOYSTICKS[1].currentPos.y  ,
+					// "-----":"-----",
+					"P1_sPos" : GAMEVARS.JOYSTICKS[0].stickPos  ,
+					"P2_sPos" : GAMEVARS.JOYSTICKS[1].stickPos  ,
+				},
+				"JOYSTICK INFO",
+				sharedWidth+20
+			);
 
-			// for(let key in GAMEVARS){
-			// 	if(["object", "function"].indexOf( typeof GAMEVARS[key] ) == -1) {
-			// 		console.log(key.padEnd(20, " "), "", typeof GAMEVARS[key]);
-			// 	}
-			// }
+			let table7 = createTable_type1(
+				[
+					"P1_dir" ,
+					"P2_dir" ,
+					"P1_fire" ,
+					"P2_fire" ,
+				],
+				{
+					"P1_dir"  : DOM.joystick1_canvas.getAttribute("dir") ,
+					"P2_dir"  : DOM.joystick2_canvas.getAttribute("dir") ,
+					"P1_fire" : DOM.fire1_canvas.getAttribute("firing")  ,
+					"P2_fire" : DOM.fire2_canvas.getAttribute("firing")  ,
+				},
+				"INPUT INFO",
+				sharedWidth-20
+			);
+
+
+			let table8 = createTable_type1(
+				[
+					"value",
+					"delta",
+					"fps",
+					"average",
+				],
+				{
+					"value"         : LOADER.fps.value        ,
+					"delta"         : LOADER.fps.delta.toFixed(3) ,
+					"fps"           : LOADER.fps.fps.toFixed(3) ,
+					"average"       : LOADER.fps.average      ,
+				},
+				"FPS CALC",
+				sharedWidth
+			);
 
 			table1.classList.add("debugTable1");
 			table2.classList.add("debugTable1");
 			table3.classList.add("debugTable1");
 			table4.classList.add("debugTable1");
 			table5.classList.add("debugTable1");
+			table6.classList.add("debugTable1");
+			table7.classList.add("debugTable1");
+			table8.classList.add("debugTable1");
 
 			let div = document.createElement("div");
 			div.classList.add("debugDiv_container");
 			div.appendChild(table2);
 			div.appendChild(table3);
 			div.appendChild(table5);
-			div.appendChild(table1);
+			div.appendChild(table8);
 			div.appendChild( document.createElement("br") );
+			div.appendChild(table1);
 			div.appendChild(table4);
+			div.appendChild(table6);
+			div.appendChild(table7);
 
 			// Return the table.
 			return { "div" : div };
 
 		};
-
-		let hits        = function(){
+		let hits              = function(){
 			// GAMEVARS.HITS
 
 			let mapFunction = function(d,i,a){
@@ -665,6 +798,9 @@ let DEBUG = {
 
 		};
 
+		// "intervalDebug"   : DEBUG.intervalDebugUpdated     ,
+
+		// Get the data as HTML elements.
 		let html_shots    = shots();
 		let html_players  = players();
 		let html_ships    = ships();
@@ -673,9 +809,8 @@ let DEBUG = {
 		let html_barriers = barriers();
 		let html_hits     = hits();
 
+		// Right side of the debug screen.
 		DEBUG.DOM.debug_output1.innerHTML="";
-		DEBUG.DOM.debug_output2.innerHTML="";
-
 		DEBUG.DOM.debug_output1.appendChild(html_players.div);
 		DEBUG.DOM.debug_output1.appendChild(html_invaders.div);
 		DEBUG.DOM.debug_output1.appendChild(html_ships.div);
@@ -683,7 +818,14 @@ let DEBUG = {
 		DEBUG.DOM.debug_output1.appendChild(html_hits.div);
 		DEBUG.DOM.debug_output1.appendChild(html_shots.div);
 
+		// Left side of the debug screen.
+		DEBUG.DOM.debug_output2.innerHTML="";
 		DEBUG.DOM.debug_output2.appendChild(html_info.div);
+
+		DEBUG.DOM.intervalDebugUpdated.innerText = DEBUG.intervalDebugUpdated + " ms" ;
+
+		//
+		DEBUG.lastDebugUpdated=now;
 	},
 
 	//
@@ -759,6 +901,21 @@ let DEBUG = {
 			invader.resetForRemoval();
 
 			break;
+		}
+	},
+
+	//
+	adjustDebugLatency        : function(value, setDirect){
+		// Keep it in range.
+		let min=100;
+		let max=2000;
+
+		if(setDirect){
+			DEBUG.intervalDebugUpdated = Math.max( min, Math.min(value, max) );
+		}
+		else         {
+			DEBUG.DOM.debugLatency_select.value="";
+			DEBUG.intervalDebugUpdated = Math.max( min, Math.min(DEBUG.intervalDebugUpdated + value, max) );
 		}
 	},
 

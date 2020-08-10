@@ -192,27 +192,48 @@ div#canvas1_div {
 	border: 2px solid #843200;
 }
 
-#joystick1_canvas{width: 88px;height: 88px; position: absolute;left: 5px;bottom: 5px;}
-#joystick2_canvas{width: 88px;height: 88px; position: absolute;left: 5px;bottom: 5px;}
-#fire1_canvas    {width: 64px;height: 64px; position: absolute;right: 5px;bottom:5px;}
-#fire2_canvas    {width: 64px;height: 64px; position: absolute;right: 5px;bottom: 5px;}
 
-#p1_area{
-    float: left;
-    /* border: 1px solid white; */
-    width: 205px;
-	height: 85px;
+/* ON-SCREEN GAME INPUTS */
+.player_area_boxes {
+    /* border: 1px solid rgb(0 0 0 / 20%); */
+    display: inline-block;
+    /* height: 100px; */
+    /* width: 100px; */
+    vertical-align: bottom;
+    text-align: center;
     position: relative;
+}
+.player_area_boxes.pab1{
+	height: 80px;
+	width: 240px;
+	/* background-color: rgb(0 0 0 / 20%); */
+}
+.player_area_boxes.pab2{
+	height: 80px;
+	width: 175px;
+	/* background-color: rgb(0 0 0 / 20%); */
+	/* float: right; */
+}
+.joystick_canvas{cursor: pointer;width: 195px;height: 80px;/* width: 100%; *//* height: 100%; */position: absolute;right: 10px;border: 3px double black;}
+.fire_canvas    {cursor: pointer;width: 80px;height: 80px;/* width: 100%; *//* height: 100%; */position: absolute;right: 0px;border: 3px double black;}
+#joystick1_canvas{/* background-color:rgb(0 34 34); */}
+#fire1_canvas    {/* background-color:rgb(222 34 34); */}
+#joystick2_canvas{/* background-color:#2f2fe2; */}
+#fire2_canvas    {/* background-color:#2f2fe2; */}
+#p1_area{
+    width: 435px;
+    height: 85px;
     background-color: #93522a;
+    display:inline-block;
 }
 #p2_area{
-    float: right;
-    /* border: 1px solid white; */
-    width: 205px;
+    width: 210px;
     height: 85px;
-    position: relative;
     background-color: #93522a;
+    display:inline-block;
 }
+/* ON-SCREEN GAME INPUTS */
+
 
 #menu_div{
 	opacity:0.0;
@@ -237,7 +258,7 @@ div#canvas1_div {
 #menu{
 	position: absolute;
 	left: 0px;
-	bottom: 0px;
+	bottom: 30px;
 	width: 445px;
 	/* height: 585px; */
 	height: 300px;
@@ -261,5 +282,5 @@ div#canvas1_div {
 #menu_player_size_div{
 	background-color:black;
 	display:inline-block
-
 }
+

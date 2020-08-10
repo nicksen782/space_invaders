@@ -53,5 +53,8 @@
 }
 
 .debugButton1 {
-    width: 150px;
+    width: 130px;
+    font-size: 10px;
+    /* text-align: left; */
+    padding: 0px;
 }

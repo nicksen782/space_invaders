@@ -53,8 +53,8 @@ let GAMEVARS = {
 	audiocanplay       : false   ,
 	pagevisible        : true    ,
 	raf_id             : null    ,
-	fps                : 30      ,
-	msPerFrame         : 1000/30 ,
+	fps                : 31      ,
+	msPerFrame         : 1000/31 ,
 	last_raf_tstamp    : 0       ,
 	gameover_bottom    : 215     , // lines
 	barrier_top        : 175     , // lines
@@ -72,6 +72,7 @@ let GAMEVARS = {
 	INVADERS           : [] ,
 	BARRIERS           : [] ,
 	HITS               : [] ,
+	JOYSTICKS          : [] , // Set one time.
 
 	// Keyboard controls.
 	KEYSTATE           : {},
@@ -134,7 +135,6 @@ let GAMEVARS = {
 
 };
 
-
 // Game functions.
 let FUNCS = {
 	//
@@ -146,7 +146,7 @@ let FUNCS = {
 			FUNCS.addPlayer(1);
 
 			// Player 2
-			FUNCS.addPlayer(2);
+			// FUNCS.addPlayer(2);
 
 			// Invader grid
 			FUNCS.createInvaderGrid();
@@ -506,19 +506,29 @@ let FUNCS = {
 
 	// Determines if enough time has occurred for the next frame to be processed.
 	allowFrame             : function(tstamp){
+		// LOADER.fps.tick( tstamp );
+		// let fps = LOADER.fps.value;
+		// let canRunFrame=false;
+		// if(fps>GAMEVARS.fps){ canRunFrame=true; }
+
+		// tstamp = performance.now();
+
 		// Determine how long it has been since the last tstamp.
 		let msSinceLastFrame = tstamp - GAMEVARS.last_raf_tstamp;
 
 		// Determine if this frame can be processed.
-		let allowThisFrame   = (msSinceLastFrame > GAMEVARS.msPerFrame ? true : false);
+		let allowThisFrame   = (msSinceLastFrame >= GAMEVARS.msPerFrame ? true : false);
 
-		// If not enough time has occurred then return true.
+		// If not enough time has occurred then return false.
 		if(!allowThisFrame){ return false ; }
 
-		// Otherwise, return false and also record the last tstamp.
+		// Otherwise, return true and also record the last tstamp.
 		else               {
 			// Record the last timestamp from requestAnimationFrame.
 			GAMEVARS.last_raf_tstamp = tstamp;
+
+			//
+			LOADER.fps.tick( tstamp );
 
 			// Return true to allow the frame to be processed.
 			return true  ;
@@ -689,6 +699,7 @@ let FUNCS = {
 
 	//
 	emulateKeypressByControls : function(player, action, active){
+		// console.log(player, action, active);
 		let players = [ "P1", "P2" ];
 		let actions = [ "left", "right", "fire" ];
 		if(players.indexOf(player) == -1) { console.log("INVALID PLAYER: ", player); return ; }
@@ -700,38 +711,105 @@ let FUNCS = {
 	},
 	//
 	updateDisplayedControls : function(){
-		// Player 1.
-		let p1_left  = GAMEVARS.KEYSTATE[GAMEVARS.KEYBOARD_CONTROLS["P1"].LEFT.CODE ] ;
-		let p1_right = GAMEVARS.KEYSTATE[GAMEVARS.KEYBOARD_CONTROLS["P1"].RIGHT.CODE] ;
-		let p1_fire  = GAMEVARS.KEYSTATE[GAMEVARS.KEYBOARD_CONTROLS["P1"].FIRE.CODE ] ;
-		if     (p1_left) { DOM.joystick1_canvas_ctx.clearRect(0,0,DOM.joystick1_canvas.width, DOM.joystick1_canvas.height); DOM.joystick1_canvas_ctx.drawImage(IMGCACHE.js_left         [0],0,0); }
-		else if(p1_right){ DOM.joystick1_canvas_ctx.clearRect(0,0,DOM.joystick1_canvas.width, DOM.joystick1_canvas.height); DOM.joystick1_canvas_ctx.drawImage(IMGCACHE.js_right        [0],0,0); }
-		else             { DOM.joystick1_canvas_ctx.clearRect(0,0,DOM.joystick1_canvas.width, DOM.joystick1_canvas.height); DOM.joystick1_canvas_ctx.drawImage(IMGCACHE.js_idle         [0],0,0); }
-		if     (p1_fire) { DOM.fire1_canvas_ctx    .clearRect(0,0,DOM.fire1_canvas.width    , DOM.fire1_canvas.height    ); DOM.fire1_canvas_ctx    .drawImage(IMGCACHE.button_pressed  [0],0,0); }
-		else             { DOM.fire1_canvas_ctx    .clearRect(0,0,DOM.fire1_canvas.width    , DOM.fire1_canvas.height    ); DOM.fire1_canvas_ctx    .drawImage(IMGCACHE.button_unpressed[0],0,0); }
+		// let input_indexes  = [0, 1];
+		// let input  = input_indexes[i];
 
-		// Player 2.
-		let p2_left  = GAMEVARS.KEYSTATE[GAMEVARS.KEYBOARD_CONTROLS["P2"].LEFT.CODE ] ;
-		let p2_right = GAMEVARS.KEYSTATE[GAMEVARS.KEYBOARD_CONTROLS["P2"].RIGHT.CODE] ;
-		let p2_fire  = GAMEVARS.KEYSTATE[GAMEVARS.KEYBOARD_CONTROLS["P2"].FIRE.CODE ] ;
-		if     (p2_left) { DOM.joystick2_canvas_ctx.clearRect(0,0,DOM.joystick2_canvas.width, DOM.joystick2_canvas.height); DOM.joystick2_canvas_ctx.drawImage(IMGCACHE.js_left         [0],0,0); }
-		else if(p2_right){ DOM.joystick2_canvas_ctx.clearRect(0,0,DOM.joystick2_canvas.width, DOM.joystick2_canvas.height); DOM.joystick2_canvas_ctx.drawImage(IMGCACHE.js_right        [0],0,0); }
-		else             { DOM.joystick2_canvas_ctx.clearRect(0,0,DOM.joystick2_canvas.width, DOM.joystick2_canvas.height); DOM.joystick2_canvas_ctx.drawImage(IMGCACHE.js_idle         [0],0,0); }
-		if     (p2_fire) { DOM.fire2_canvas_ctx    .clearRect(0,0,DOM.fire2_canvas.width    , DOM.fire2_canvas.height    ); DOM.fire2_canvas_ctx    .drawImage(IMGCACHE.button_pressed  [0],0,0); }
-		else             { DOM.fire2_canvas_ctx    .clearRect(0,0,DOM.fire2_canvas.width    , DOM.fire2_canvas.height    ); DOM.fire2_canvas_ctx    .drawImage(IMGCACHE.button_unpressed[0],0,0); }
+		let player_indexes = ["P1", "P2"];
+		let ctx_indexes1 = [DOM.joystick1_canvas_ctx, DOM.joystick2_canvas_ctx];
+		for(let i=0; i<player_indexes.length; i+=1){
+			let player   = player_indexes[i];
+			let ctx      = ctx_indexes1[i];
+			let canvas   = ctx.canvas;
+			let dir      = canvas.getAttribute("dir");
+			let left     = GAMEVARS.KEYSTATE[GAMEVARS.KEYBOARD_CONTROLS[player].LEFT.CODE ] ;
+			let right    = GAMEVARS.KEYSTATE[GAMEVARS.KEYBOARD_CONTROLS[player].RIGHT.CODE] ;
+			let stickPos = GAMEVARS.JOYSTICKS[i].stickPos;
+
+			if     (left) {
+				// Far left?
+				if     (stickPos==0){
+					ctx.clearRect(0,0,canvas.width, canvas.height);
+					ctx.drawImage(IMGCACHE.joystick_left_0[0],0,0);
+				}
+				// Inside left?
+				else if(stickPos==1){
+					ctx.clearRect(0,0,canvas.width, canvas.height);
+					ctx.drawImage(IMGCACHE.joystick_left_1[0],0,0);
+				}
+
+				if(dir!="left"){
+					canvas.setAttribute("dir", "left");
+				}
+			}
+			else if(right){
+				// Inside right?
+				if     (stickPos==3){
+					ctx.clearRect(0,0,canvas.width, canvas.height);
+					ctx.drawImage(IMGCACHE.joystick_right_3[0],0,0);
+				}
+				// Far right?
+				else if(stickPos==4){
+					ctx.clearRect(0,0,canvas.width, canvas.height);
+					ctx.drawImage(IMGCACHE.joystick_right_4[0],0,0);
+				}
+
+				if(dir!="right"){
+					canvas.setAttribute("dir", "right");
+				}
+			}
+			else             {
+				if(dir!="idle"){
+					ctx.clearRect(0,0,ctx.canvas.width, ctx.canvas.height);
+					ctx.drawImage(IMGCACHE.joystick_idle_2         [0],0,0);
+					canvas.setAttribute("dir", "idle");
+				}
+			}
+		}
+
+		let ctx_indexes2 = [DOM.fire1_canvas_ctx, DOM.fire2_canvas_ctx];
+		for(let i=0; i<player_indexes.length; i+=1){
+			let player = player_indexes[i];
+			let fire   = GAMEVARS.KEYSTATE[GAMEVARS.KEYBOARD_CONTROLS[player].FIRE.CODE ] ;
+			let ctx    = ctx_indexes2[i];
+			let canvas = ctx.canvas;
+			let firing = canvas.getAttribute("firing");
+
+			if(fire){
+				if(firing=="false"){
+					ctx    .clearRect(0,0,canvas.width    , canvas.height    );
+					ctx    .drawImage(IMGCACHE.button_pressed  [0],0,0);
+					canvas.setAttribute("firing", "true");
+				}
+			}
+			else{
+				if(firing=="true"){
+					ctx    .clearRect(0,0,canvas.width    , canvas.height    );
+					ctx    .drawImage(IMGCACHE.button_unpressed  [0],0,0);
+					canvas.setAttribute("firing", "false");
+				}
+			}
+
+		}
+
 	},
 
 	//
 	gameloop               : function(tstamp){
 		// If NOT paused then request an animation frame and repeat the set Timeout.
+		if( (!GAMEVARS.paused && !GAMEVARS.pausedOnMenu) && GAMEVARS.pagevisible ){
 
-		if( (!GAMEVARS.paused && !GAMEVARS.pausedOnMenu) && GAMEVARS.pagevisible){
 			// Can this frame be processed?
 			if( ! FUNCS.allowFrame(tstamp) ) {
 				// Schedule next animation frame.
 				GAMEVARS.raf_id = window.requestAnimationFrame(FUNCS.gameloop);
 				return;
 			}
+			else{
+				// Schedule next animation frame.
+				GAMEVARS.raf_id = window.requestAnimationFrame(FUNCS.gameloop);
+			}
+
+			// document.getElementById("debug_calcFPS").innerText = LOADER.fps.value;
 
 			// CLEAN-UP.
 			FUNCS.clearCanvas();            // Clear the precanvas for a new frame.
@@ -764,7 +842,7 @@ let FUNCS = {
 			FUNCS.updateDisplayedControls();           //
 
 			// Schedule next animation frame.
-			GAMEVARS.raf_id = window.requestAnimationFrame(FUNCS.gameloop);
+			// GAMEVARS.raf_id = window.requestAnimationFrame(FUNCS.gameloop);
 		}
 		else{
 			setTimeout(function(){
@@ -781,6 +859,62 @@ let DOM = {};
 
 // Used during initial load and init.
 let LOADER = {
+	// Calculates the average frames per second.
+	fps : {
+		// colxi: https://stackoverflow.com/a/55644176/2731377
+		sampleSize : 60    ,
+		value      : 0     ,
+		_sample_   : []    ,
+		_index_    : 0     ,
+		_lastTick_ : false ,
+
+		//
+		now          : 0 ,
+		delta        : 0 ,
+		fps          : 0 ,
+		average      : 0 ,
+		sampleLength : 0 ,
+		i            : 0 ,
+
+		tick : function(timestamp) {
+			// if is first tick, just set tick timestamp and return
+			if (!this._lastTick_) {
+				// this._lastTick_ = performance.now();
+				this._lastTick_ = timestamp;
+				return 0;
+			}
+
+			// calculate necessary values to obtain current tick FPS
+			// this.now = performance.now();
+			this.now = timestamp;
+			this.delta = (this.now - this._lastTick_) / 1000;
+			this.fps = 1 / this.delta;
+
+			// add to fps samples, current tick fps value
+			this._sample_[this._index_] = Math.round(this.fps);
+			// this._sample_[this._index_] = (this.fps);
+
+			// iterate samples to obtain the average
+			this.average = 0;
+			this.sampleLength = this._sample_.length;
+			for (this.i = 0; this.i < this.sampleLength; this.i++) { this.average += this._sample_[this.i]; }
+			this.average = Math.round(this.average / this.sampleLength);
+			// this.average = (this.average / this.sampleLength);
+
+			// set new FPS
+			this.value = this.average;
+
+			// store current timestamp
+			this._lastTick_ = this.now;
+
+			// increase sample index counter, and reset it
+			// to 0 if exceded maximum sampleSize limit
+			this._index_++;
+			if (this._index_ === this.sampleSize) { this._index_ = 0; }
+			return this.value;
+		}
+	},
+
 	//
 	toggleMenu                       : function(){
 		// Update the debug data.
@@ -839,7 +973,7 @@ let LOADER = {
 
 		//
 		if(DEBUGMODE){
-			DEBUG.DOM.currentFPS.innerText="FPS: " + GAMEVARS.fps + " ("+GAMEVARS.msPerFrame.toFixed(2)+" ms)";
+			DEBUG.DOM.currentFPS.innerText="" + GAMEVARS.fps + " ("+GAMEVARS.msPerFrame.toFixed(2)+" ms)";
 		}
 
 		// Load the graphics.
@@ -855,30 +989,6 @@ let LOADER = {
 				LOADER.setpixelated(DOM.preMainCanvas);
 				DOM.preMainCanvas_ctx    = DOM.preMainCanvas.getContext('2d');
 
-				// Setup input canvases (player 1)
-				DOM.joystick1_canvas.width  = IMGCACHE.js_idle[0].width ;
-				DOM.joystick1_canvas.height = IMGCACHE.js_idle[0].height ;
-				LOADER.setpixelated(DOM.joystick1_canvas);
-				DOM.joystick1_canvas_ctx    = DOM.joystick1_canvas.getContext('2d', {'alpha':false});
-				DOM.joystick1_canvas_ctx.drawImage(IMGCACHE.js_idle[0],0,0);
-				DOM.fire1_canvas.width  = IMGCACHE.button_pressed[0].width  ;
-				DOM.fire1_canvas.height = IMGCACHE.button_pressed[0].height ;
-				LOADER.setpixelated(DOM.fire1_canvas);
-				DOM.fire1_canvas_ctx    = DOM.fire1_canvas.getContext('2d');
-				DOM.fire1_canvas_ctx.drawImage(IMGCACHE.button_unpressed[0],0,0);
-
-				// Setup input canvases (player 2)
-				DOM.joystick2_canvas.width  = IMGCACHE.js_idle[0].width ;
-				DOM.joystick2_canvas.height = IMGCACHE.js_idle[0].height ;
-				LOADER.setpixelated(DOM.joystick2_canvas);
-				DOM.joystick2_canvas_ctx    = DOM.joystick2_canvas.getContext('2d', {'alpha':false});
-				DOM.joystick2_canvas_ctx.drawImage(IMGCACHE.js_idle[0],0,0);
-				DOM.fire2_canvas.width  = IMGCACHE.button_pressed[0].width  ;
-				DOM.fire2_canvas.height = IMGCACHE.button_pressed[0].height ;
-				LOADER.setpixelated(DOM.fire2_canvas);
-				DOM.fire2_canvas_ctx    = DOM.fire2_canvas.getContext('2d');
-				DOM.fire2_canvas_ctx.drawImage(IMGCACHE.button_unpressed[0],0,0);
-
 				// Prevent the screen from scrolling when using the arrow keys to control the game.
 				window.addEventListener("keydown"  , LOADER.preventScroll, false);
 
@@ -890,9 +1000,24 @@ let LOADER = {
 				window.addEventListener('focus', LOADER.windowFocus , false );
 				window.addEventListener('blur' , LOADER.windowBlur  , false );
 
+				//
+				LOADER.setupInput();
+
 				// DEBUG - Setup the mousemove listener for hovering over the canvas.
 				if(DEBUGMODE && DEBUG.showCanvasCursorCoords){
-					DOM.mainCanvas.addEventListener('mousemove', DEBUG.getCanvasMousePosition, false);
+					// Move
+					DOM.mainCanvas       .addEventListener('mousemove', DEBUG.getCanvasMousePosition, false);
+					DOM.joystick1_canvas .addEventListener('mousemove', DEBUG.getCanvasMousePosition, false);
+					DOM.joystick2_canvas .addEventListener('mousemove', DEBUG.getCanvasMousePosition, false);
+					DOM.fire1_canvas     .addEventListener('mousemove', DEBUG.getCanvasMousePosition, false);
+					DOM.fire2_canvas     .addEventListener('mousemove', DEBUG.getCanvasMousePosition, false);
+
+					// Leave
+					DOM.mainCanvas       .addEventListener('mouseleave', DEBUG.resetCanvasMousePositions, false);
+					DOM.joystick1_canvas .addEventListener('mouseleave', DEBUG.resetCanvasMousePositions, false);
+					DOM.joystick2_canvas .addEventListener('mouseleave', DEBUG.resetCanvasMousePositions, false);
+					DOM.fire1_canvas     .addEventListener('mouseleave', DEBUG.resetCanvasMousePositions, false);
+					DOM.fire2_canvas     .addEventListener('mouseleave', DEBUG.resetCanvasMousePositions, false);
 				}
 
 				// Adjust the audio play prototype and then test audio availability.
@@ -1040,9 +1165,11 @@ let LOADER = {
 				"hit3"     : [ { "x":56, "y":256, "w":32, "h":24, "nW":32, "nH":16 }, { "x":56, "y":288, "w":32, "h":24, "nW":32, "nH":16 } ],
 
 				// Joystick
-				"js_left"          : [ { "x":13*8, "y":21*8 , "w":4*8, "h":4*8, "nW":(4*8), "nH":(4*8) } ],
-				"js_idle"          : [ { "x":13*8, "y":26*8 , "w":4*8, "h":4*8, "nW":(4*8), "nH":(4*8) } ],
-				"js_right"         : [ { "x":13*8, "y":16*8 , "w":4*8, "h":4*8, "nW":(4*8), "nH":(4*8) } ],
+				"joystick_left_0"  : [ { "x":13*8, "y":16*8 , "w":4*8, "h":4*8, "nW":(4*8), "nH":(4*8) } ],
+				"joystick_left_1"  : [ { "x":13*8, "y":21*8 , "w":4*8, "h":4*8, "nW":(4*8), "nH":(4*8) } ],
+				"joystick_idle_2"  : [ { "x":13*8, "y":26*8 , "w":4*8, "h":4*8, "nW":(4*8), "nH":(4*8) } ],
+				"joystick_right_3" : [ { "x":13*8, "y":31*8 , "w":4*8, "h":4*8, "nW":(4*8), "nH":(4*8) } ],
+				"joystick_right_4" : [ { "x":13*8, "y":36*8 , "w":4*8, "h":4*8, "nW":(4*8), "nH":(4*8) } ],
 
 				// Buttons
 				"button_unpressed" : [ { "x":13*8, "y":6*8 , "w":4*8, "h":4*8, "nW":(4*8), "nH":(4*8) } ],
@@ -1193,6 +1320,16 @@ let LOADER = {
 		];
 		if(allowed.indexOf(e.keyCode) != -1){
 			GAMEVARS.KEYSTATE[e.keyCode] = true;
+
+			switch(e.keyCode){
+				case 37 : { GAMEVARS.JOYSTICKS[0].stickPos = 1; break; } // P1 LEFT  Left Arrow
+				case 39 : { GAMEVARS.JOYSTICKS[0].stickPos = 3; break; } // P1 RIGHT Right Arrow
+				case 65 : { GAMEVARS.JOYSTICKS[1].stickPos = 1; break; } // P2 LEFT  A Key
+				case 68 : { GAMEVARS.JOYSTICKS[1].stickPos = 3; break; } // P2 RIGHT D Key
+				// case 38 : { break; } // P1 FIRE  Up Arrow
+				// case 87 : { break; } // P2 FIRE  W Key
+				default : { break; }
+			}
 		}
 	},
 
@@ -1207,6 +1344,16 @@ let LOADER = {
 		];
 		if(allowed.indexOf(e.keyCode) != -1){
 			GAMEVARS.KEYSTATE[e.keyCode] = false;
+
+			switch(e.keyCode){
+				case 37 : { GAMEVARS.JOYSTICKS[0].stickPos = 2; break; } // P1 LEFT  Left Arrow
+				case 39 : { GAMEVARS.JOYSTICKS[0].stickPos = 2; break; } // P1 RIGHT Right Arrow
+				case 65 : { GAMEVARS.JOYSTICKS[1].stickPos = 2; break; } // P2 LEFT  A Key
+				case 68 : { GAMEVARS.JOYSTICKS[1].stickPos = 2; break; } // P2 RIGHT D Key
+				// case 38 : { break; } // P1 FIRE  Up Arrow
+				// case 87 : { break; } // P2 FIRE  W Key
+				default : { break; }
+			}
 		}
 	},
 
@@ -1239,10 +1386,183 @@ let LOADER = {
 			resolve();
 		});
 	},
+
+	//
+	setupInput                      : function(){
+		// Setup joystick input canvases (player 1)
+		DOM.joystick1_canvas.width  = IMGCACHE.joystick_idle_2[0].width ;
+		DOM.joystick1_canvas.height = IMGCACHE.joystick_idle_2[0].height ;
+		LOADER.setpixelated(DOM.joystick1_canvas);
+		DOM.joystick1_canvas_ctx    = DOM.joystick1_canvas.getContext('2d', {'alpha':false});
+		DOM.joystick1_canvas_ctx.drawImage(IMGCACHE.joystick_idle_2[0],0,0);
+
+		// Setup joystick input canvases (player 2)
+		DOM.joystick2_canvas.width  = IMGCACHE.joystick_idle_2[0].width ;
+		DOM.joystick2_canvas.height = IMGCACHE.joystick_idle_2[0].height ;
+		LOADER.setpixelated(DOM.joystick2_canvas);
+		DOM.joystick2_canvas_ctx    = DOM.joystick2_canvas.getContext('2d', {'alpha':false});
+		DOM.joystick2_canvas_ctx.drawImage(IMGCACHE.joystick_idle_2[0],0,0);
+
+		// Add the joysticks.
+		GAMEVARS.JOYSTICKS.push( new Joystick(DOM.joystick1_canvas, "P1") );
+		GAMEVARS.JOYSTICKS.push( new Joystick(DOM.joystick2_canvas, "P2") );
+
+		// Setup fire input canvases (player 1)
+		DOM.fire1_canvas.width  = IMGCACHE.button_pressed[0].width  ;
+		DOM.fire1_canvas.height = IMGCACHE.button_pressed[0].height ;
+		LOADER.setpixelated(DOM.fire1_canvas);
+		DOM.fire1_canvas_ctx    = DOM.fire1_canvas.getContext('2d');
+		DOM.fire1_canvas_ctx.drawImage(IMGCACHE.button_unpressed[0],0,0);
+
+		// Setup fire input canvases (player 2)
+		DOM.fire2_canvas.width  = IMGCACHE.button_pressed[0].width  ;
+		DOM.fire2_canvas.height = IMGCACHE.button_pressed[0].height ;
+		LOADER.setpixelated(DOM.fire2_canvas);
+		DOM.fire2_canvas_ctx    = DOM.fire2_canvas.getContext('2d');
+		DOM.fire2_canvas_ctx.drawImage(IMGCACHE.button_unpressed[0],0,0);
+
+		// Touch fire listeners (player 1 and player 2)
+		if("ontouchstart" in document.documentElement){
+			// Fire button listeners (player 1).
+			DOM.fire1_canvas.addEventListener("touchstart"  , function(e){ FUNCS.emulateKeypressByControls('P1', 'fire' , true);  e.preventDefault(); }, false);
+			DOM.fire1_canvas.addEventListener("touchend"    , function(e){ FUNCS.emulateKeypressByControls('P1', 'fire' , false); e.preventDefault(); }, false);
+			DOM.fire1_canvas.addEventListener("touchcancel" , function(e){ FUNCS.emulateKeypressByControls('P1', 'fire' , false); e.preventDefault(); }, false);
+
+			// Fire button listeners (player 2).
+			DOM.fire2_canvas.addEventListener("touchstart"  , function(e){ FUNCS.emulateKeypressByControls('P2', 'fire' , true);  e.preventDefault(); }, false);
+			DOM.fire2_canvas.addEventListener("touchend"    , function(e){ FUNCS.emulateKeypressByControls('P2', 'fire' , false); e.preventDefault(); }, false);
+			DOM.fire2_canvas.addEventListener("touchcancel" , function(e){ FUNCS.emulateKeypressByControls('P2', 'fire' , false); e.preventDefault(); }, false);
+		}
+
+		// Mouse fire listeners (player 1 and player 2)
+		DOM.fire1_canvas.addEventListener("mousedown"  , function(e){ FUNCS.emulateKeypressByControls('P1', 'fire' , true);  e.preventDefault(); }, false);
+		DOM.fire1_canvas.addEventListener("mouseup"    , function(e){ FUNCS.emulateKeypressByControls('P1', 'fire' , false); e.preventDefault(); }, false);
+		DOM.fire1_canvas.addEventListener("mouseleave" , function(e){ FUNCS.emulateKeypressByControls('P1', 'fire' , false); e.preventDefault(); }, false);
+		//
+		DOM.fire2_canvas.addEventListener("mousedown"  , function(e){ FUNCS.emulateKeypressByControls('P2', 'fire' , true);  e.preventDefault(); }, false);
+		DOM.fire2_canvas.addEventListener("mouseup"    , function(e){ FUNCS.emulateKeypressByControls('P2', 'fire' , false); e.preventDefault(); }, false);
+		DOM.fire2_canvas.addEventListener("mouseleave" , function(e){ FUNCS.emulateKeypressByControls('P2', 'fire' , false); e.preventDefault(); }, false);
+	},
 };
 
 // ***** User-defined objects used.
 // ********************************
+
+//
+function Joystick(canvas, player){
+	// Drag left and right display different joystick frames.
+
+	// this.self   = this;
+	let self   = this;
+	self.canvas = canvas;
+	self.player = player;
+	self.maxDiff = 50;
+	self.deadzone = 1;
+	self.stickPos = 2; // 0, 1, (2), 3, 4
+
+	this.dragStart = null;
+	this.currentPos = { x: 0, y: 0 };
+
+	this.handleMouseDown = function(event) {
+		// stick.style.transition = '0s';
+		if (event.changedTouches) {
+			self.dragStart = {
+				x: event.changedTouches[0].clientX,
+				y: event.changedTouches[0].clientY,
+			};
+
+			FUNCS.emulateKeypressByControls(player, 'left', false);
+			FUNCS.emulateKeypressByControls(player, 'right', false);
+			self.stickPos=2;
+
+			return;
+		}
+		else{
+			self.dragStart = {
+				x: event.clientX,
+				y: event.clientY,
+			};
+
+			FUNCS.emulateKeypressByControls(player, 'left', false);
+			FUNCS.emulateKeypressByControls(player, 'right', false);
+			self.stickPos=2;
+		}
+
+	};
+
+	this.handleMouseMove = function(event) {
+		if (self.dragStart === null || self.dragStart === undefined) { return; }
+
+		event.preventDefault();
+
+		if (event.changedTouches) {
+			event.clientX = event.changedTouches[0].clientX;
+			event.clientY = event.changedTouches[0].clientY;
+		}
+
+		const xDiff    = event.clientX - self.dragStart.x;
+		const yDiff    = event.clientY - self.dragStart.y;
+		const angle    = Math.atan2(yDiff, xDiff);
+		const distance = Math.min(self.maxDiff, Math.hypot(xDiff, yDiff));
+		const xNew     = distance * Math.cos(angle);
+		const yNew     = distance * Math.sin(angle);
+
+		// stick.style.transform = `translate3d(${xNew}px, ${yNew}px, 0px)`;
+		self.currentPos = { x: Math.floor(xNew), y: Math.floor(yNew) };
+
+		let left  = (Math.sign(xNew) == -1 ? true : false) && xNew ; // < self.deadzone;
+		let right = (Math.sign(xNew) ==  1 ? true : false) && xNew ; // > self.deadzone;
+
+		let width = self.canvas.width;
+
+		let BETWEEN = function(x, min, max){
+			// return ((x-min)*(x-max) <= 0);
+			return x >= min && x<= max;
+		};
+
+		if     (left) {
+			FUNCS.emulateKeypressByControls(player, 'left'  , true );
+			FUNCS.emulateKeypressByControls(player, 'right' , false);
+			if     ( BETWEEN( Math.abs(xNew), (width/2), (width)   ) ){ self.stickPos=0; } // Far left.
+			else if( BETWEEN( Math.abs(xNew), (0)      , (width/2) ) ){ self.stickPos=1; } // Inside left.
+		}
+		else if(right){
+			FUNCS.emulateKeypressByControls(player, 'left' , false);
+			FUNCS.emulateKeypressByControls(player, 'right', true );
+			if     ( BETWEEN( Math.abs(xNew), (0)      , (width/2) ) ){ self.stickPos=3; } // Inside right.
+			else if( BETWEEN( Math.abs(xNew), (width/2), (width)   ) ){ self.stickPos=4; } // Far right.
+		}
+		else{
+			FUNCS.emulateKeypressByControls(player, 'left' , false);
+			FUNCS.emulateKeypressByControls(player, 'right', false);
+			self.stickPos=2;
+		}
+	};
+
+	this.handleMouseUp   = function(event) {
+		if (self.dragStart === null || self.dragStart === undefined) { return; }
+		// stick.style.transition = '.2s';
+		// stick.style.transform = `translate3d(0px, 0px, 0px)`;
+		self.dragStart = null;
+		self.currentPos = { x: 0, y: 0 };
+
+		FUNCS.emulateKeypressByControls(player, 'left' , false);
+		FUNCS.emulateKeypressByControls(player, 'right' , false);
+		self.stickPos=2;
+	};
+
+	this.canvas.addEventListener('mousedown'  , this.handleMouseDown);
+	this.canvas.addEventListener('mouseup'    , this.handleMouseUp);
+	this.canvas.addEventListener('mousemove'  , this.handleMouseMove);
+	this.canvas.addEventListener('mouseleave' , this.handleMouseUp);
+
+	if("ontouchstart" in document.documentElement){
+		this.canvas.addEventListener('touchstart' , this.handleMouseDown);
+		this.canvas.addEventListener('touchmove'  , this.handleMouseMove);
+		this.canvas.addEventListener('touchend'   , this.handleMouseUp);
+		this.canvas.addEventListener('touchcancel', this.handleMouseUp);
+	}
+}
 
 //
 function Player (x, y, control, playernum){

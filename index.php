@@ -84,28 +84,24 @@
 			<!-- CONTROLS -->
 			<div id="controls" class="borderRadius1">
 				<!-- Controls go here -->
-				<div id="p1_area" class="borderRadius1">
-					<canvas
-						id="joystick1_canvas"
-					></canvas>
-					<canvas
-						id           = "fire1_canvas"
-						onmousedown  = "FUNCS.emulateKeypressByControls('P1', 'fire' , true);"
-						onmouseup    = "FUNCS.emulateKeypressByControls('P1', 'fire' , false);"
-						onmouseleave = "FUNCS.emulateKeypressByControls('P1', 'fire' , false);"
-					></canvas>
+				<div id="p1_area" class="borderRadius1 noSelect2">
+					<div class="player_area_boxes pab1">
+						<canvas id="joystick1_canvas" dir="idle" class="noSelect2 joystick_canvas"></canvas>
+					</div>
+
+					<div class="player_area_boxes pab2">
+						<canvas id = "fire1_canvas" firing="false" class="noSelect2 fire_canvas"></canvas>
+					</div>
 				</div>
 
-				<div id="p2_area" class="borderRadius1">
-					<canvas
-						id="joystick2_canvas"
-					></canvas>
-					<canvas
-						id           = "fire2_canvas"
-						onmousedown  = "FUNCS.emulateKeypressByControls('P2', 'fire' , true);"
-						onmouseup    = "FUNCS.emulateKeypressByControls('P2', 'fire' , false);"
-						onmouseleave = "FUNCS.emulateKeypressByControls('P2', 'fire' , false);"
-					></canvas>
+				<div id="p2_area" class="borderRadius1 noSelect2" style="display:none;">
+					<div class="player_area_boxes pab1">
+						<canvas id="joystick2_canvas" dir="idle" class="noSelect2 joystick_canvas"></canvas>
+					</div>
+
+					<div class="player_area_boxes pab2">
+						<canvas id = "fire2_canvas" firing="false" class="noSelect2 fire_canvas"></canvas>
+					</div>
 				</div>
 
 				<div style="clear:both;"></div>
@@ -127,6 +123,7 @@
 
 			</div>
 
+			<!-- <div id="debug_calcFPS">--&nbsp;</div> -->
 		</div>
 
 	</div>
