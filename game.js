@@ -1,10 +1,117 @@
 "use strict";
 
+let DEBUGMODE=false;
+
 window.onload=function(){
 	console.log("SPACE INVADERS! " +"(v4)");
 
+	let getUrlParameter = function(name) {
+		name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+		var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+		var results = regex.exec(location.search);
+		return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+	};
+
+	let attachFile = function(filename, filetype, dest){
+
+		return new Promise(function(resolve,reject){
+
+			// Adding JS
+			if (filetype=="js"){
+				let newfile=document.createElement('script');
+				newfile.setAttribute("type","text/javascript");
+				newfile.onload=function(){
+					newfile.onload=null;
+					resolve();
+				};
+
+				newfile.setAttribute("src", filename);
+				dest.appendChild(newfile);
+			}
+
+			// Adding CSS
+			else if (filetype=="css"){
+				let newfile=document.createElement("link");
+				newfile.setAttribute("rel", "stylesheet");
+				newfile.setAttribute("type", "text/css");
+				newfile.onload=function(){
+					newfile.onload=null;
+					resolve();
+				};
+				newfile.setAttribute("href", filename);
+				dest.appendChild(newfile);
+			}
+
+			// Adding HTML
+			else if (filetype=="html"){
+				var xhttp = new XMLHttpRequest();
+				xhttp.onreadystatechange = function() {
+					if (this.readyState == 4 && this.status == 200) {
+						//
+						xhttp.onreadystatechange=null;
+
+						// Create new span element and set innerHTML to the responseText.
+						let elem = document.createElement("span");
+						elem.innerHTML = this.responseText;
+
+						// Append the new span to the #debug_content.
+						dest.appendChild(elem);
+
+						resolve();
+					}
+				};
+				xhttp.open("GET", filename, true);
+				xhttp.send();
+			}
+
+		});
+
+	}
+
 	//
-	LOADER.init();
+	let start_prom = new Promise(function(resolve,reject){
+		// Set the DEBUGMODE flag.
+		let DEBUGMODE = getUrlParameter("debug") == "true" ? true : false ;
+
+		// Is DEBUGMODE on?
+		if(DEBUGMODE){
+			console.log("debug is ON");
+
+			// Add the inlineBlock class to the main display.
+			document.getElementById('mainDisplay').classList.add("inlineBlock");
+
+			// Add the inlineBlock class to the debug_content div.
+			document.getElementById('debug_content').classList.add("inlineBlock");
+
+			// Bring in the CSS, HTML, JS for DEBUG.
+			let proms = [
+				attachFile("debug.js"  , "js"  , document.body),
+				attachFile("debug.css" , "css" , document.body),
+				attachFile("debug.html", "html", document.getElementById("debug_content")),
+			];
+
+			// For for completion and then resolve.
+			Promise.all(proms).then(
+				function()   { resolve(); },
+				function(err){ console.log("ERROR:", err); reject(); }
+			);
+		}
+		// Not in DEBUGMODE.
+		else{ resolve(); }
+
+	});
+
+	//
+	start_prom.then(
+		function(){
+			LOADER.init();
+		},
+		function(err){
+			console.log("ERROR: ", err);
+		}
+	);
+
+	//
 };
 
 // Holds the rendered images from the source sprite sheet.
@@ -56,8 +163,8 @@ let GAMEVARS = {
 	fps                : 31      ,
 	msPerFrame         : 1000/31 ,
 	last_raf_tstamp    : 0       ,
-	gameover_bottom    : 215     , // lines
-	barrier_top        : 175     , // lines
+	gameover_bottom    : 192     , // lines
+	barrier_top        : 176     , // lines
 	maxShots_PLAYERS   : 1       ,
 	shotCounts         : {}      , // Cached counts of shot counts grouped by origin.
 
@@ -131,6 +238,9 @@ let GAMEVARS = {
 		GAMEVARS.KEYSTATE = {} ;
 
 		GAMEVARS.paused =  false ;
+
+		GAMEVARS.gamestate_main = 0 ;
+		GAMEVARS.gamestate_sub1 = 0 ;
 	},
 
 };
@@ -178,7 +288,8 @@ let FUNCS = {
 		GAMEVARS.reset_game_consts();
 
 		// Handle state.
-		//
+		GAMEVARS.gamestate_main="playing";
+		GAMEVARS.gamestate_sub="playing";
 
 		// Request animation frame.
 		GAMEVARS.raf_id = window.requestAnimationFrame(FUNCS.gameloop);
@@ -307,10 +418,6 @@ let FUNCS = {
 		for(let row=1; row<=6; row++){
 			y = 0 + ((row-1)*h) + GAMEVARS.invader_spacing_y*(row-1);
 
-			// Offset for the whole row.
-			y+=(h*1)-h/2;
-			// y+=((h-1)*1)-h/2;
-
 			for(let col=1; col<=6; col++){
 				// X is the col times the invader height + col times invader height divided by 4.
 				x = ((col-1)*w)  + GAMEVARS.invader_spacing_x*(col-1);
@@ -326,6 +433,9 @@ let FUNCS = {
 
 			}
 
+			// Offset for the whole row.
+			y+=(h*1)-h/2;
+			// y+=((h-1)*1)-h/2;
 		}
 
 	},
@@ -364,19 +474,33 @@ let FUNCS = {
 				if(invader.removeThis){ continue; }
 
 				//
-				if(invader.y+h >= GAMEVARS.gameover_bottom){ bottomReached=true; }
+				if(invader.y+img.height >= GAMEVARS.gameover_bottom){ bottomReached=true; }
 
 				// Remove the barriers?
 				if(GAMEVARS.BARRIERS.length && (invader.y+img.height) >= GAMEVARS.barrier_top){
 					console.log("REMOVING BARRIERS!");
 					GAMEVARS.BARRIERS=[];
 				}
+
+				console.log(invader.y,img.height, invader.y+img.height);
 			}
+			console.log("\n");
 
 			// changeDirectionsOrLose();
 			if(bottomReached){
+				for( let invader of GAMEVARS.INVADERS ){
+					if(invader.removeThis){ continue; }
+
+					let img = IMGCACHE[invader.imgCacheKey][invader.framenum];
+
+					// Move the invader down.
+					invader.y += (Math.ceil(img.height/1))*2;
+				}
+
+				GAMEVARS.gamestate_sub="gameover";
+				return;
 				// GAME OVER!
-				FUNCS.gameover();
+				// FUNCS.gameover();
 			}
 			else{
 				// Game continues
@@ -387,6 +511,8 @@ let FUNCS = {
 				for( let invader of GAMEVARS.INVADERS ){
 					if(invader.removeThis){ continue; }
 
+					let img = IMGCACHE[invader.imgCacheKey][invader.framenum];
+
 					// Change the direction.
 					if     (invader.dir=="L"){ invader.dir="R"; }
 					else if(invader.dir=="R"){ invader.dir="L"; }
@@ -395,7 +521,8 @@ let FUNCS = {
 					invader.frameslatency= Math.ceil( (GAMEVARS.invader_fmax * -1) / 2 );
 
 					// Move the invader down.
-					invader.y += Math.ceil(h/2);
+					// invader.y += Math.ceil(img.height/2);
+					invader.y += Math.ceil(img.height/1);
 				}
 			}
 		}
@@ -577,29 +704,29 @@ let FUNCS = {
 	drawLines              : function(){
 		// Draw line - lose line.
 		DOM.preMainCanvas_ctx.beginPath();
+		DOM.preMainCanvas_ctx.strokeStyle = 'yellow';
+		DOM.preMainCanvas_ctx.lineWidth = 1;
 		DOM.preMainCanvas_ctx.moveTo( 0, GAMEVARS.gameover_bottom );
 		DOM.preMainCanvas_ctx.lineTo( DOM.mainCanvas.width, GAMEVARS.gameover_bottom);
 		DOM.preMainCanvas_ctx.closePath();
-		DOM.preMainCanvas_ctx.strokeStyle = 'yellow';
-		DOM.preMainCanvas_ctx.lineWidth = 1;
 		DOM.preMainCanvas_ctx.stroke();
 
 		// Draw line - bottom line.
 		DOM.preMainCanvas_ctx.beginPath();
+		DOM.preMainCanvas_ctx.strokeStyle = 'brown';
+		DOM.preMainCanvas_ctx.lineWidth = 1;
 		DOM.preMainCanvas_ctx.moveTo( 0, DOM.mainCanvas.height-1 );
 		DOM.preMainCanvas_ctx.lineTo( DOM.mainCanvas.width, DOM.mainCanvas.height-1);
 		DOM.preMainCanvas_ctx.closePath();
-		DOM.preMainCanvas_ctx.strokeStyle = 'brown';
-		DOM.preMainCanvas_ctx.lineWidth = 1;
 		DOM.preMainCanvas_ctx.stroke();
 
 		// Draw line - barrier_top
 		DOM.preMainCanvas_ctx.beginPath();
+		DOM.preMainCanvas_ctx.strokeStyle = 'blue';
+		DOM.preMainCanvas_ctx.lineWidth = 1;
 		DOM.preMainCanvas_ctx.moveTo( 0, GAMEVARS.barrier_top );
 		DOM.preMainCanvas_ctx.lineTo( DOM.mainCanvas.width, GAMEVARS.barrier_top);
 		DOM.preMainCanvas_ctx.closePath();
-		DOM.preMainCanvas_ctx.strokeStyle = 'blue';
-		DOM.preMainCanvas_ctx.lineWidth = 1;
 		DOM.preMainCanvas_ctx.stroke();
 	},
 
@@ -809,40 +936,15 @@ let FUNCS = {
 				GAMEVARS.raf_id = window.requestAnimationFrame(FUNCS.gameloop);
 			}
 
-			// document.getElementById("debug_calcFPS").innerText = LOADER.fps.value;
-
-			// CLEAN-UP.
-			FUNCS.clearCanvas();            // Clear the precanvas for a new frame.
-			FUNCS.removeExpired();          // Shots, hits
-			FUNCS.drawLines();              //
-
-			// ANIMATIONS
-			FUNCS.handleHits();       //
-
-			// POSITIONS
-			FUNCS.updateBarrierPositions();  //
-			FUNCS.updatePlayerPositions();  //
-			FUNCS.updateShipsPositions();   //
-			FUNCS.updateInvaderPositions(); //
-			FUNCS.updateShotsPositions();   //
-
-			// SHOTS
-			FUNCS.addInvaderShots();        //
-			FUNCS.addShipShots();           //
-
-			// Update the debug data.
-			if(DEBUGMODE && DEBUG.DOM.chk_debug.checked){
-				window.requestAnimationFrame(DEBUG.updateDebugData);
+			switch(GAMEVARS.gamestate_main){
+				case "title1"  : { FUNCS.gamestate_main_title1(); break; }
+				case "title2"  : { FUNCS.gamestate_main_title2(); break; }
+				case "playing" : { FUNCS.gamestate_main_playing(); break; }
+				default  : { console.log("INVALID GAMESTATE_MAIN:", GAMEVARS.gamestate_main); break; }
 			}
 
-			// Update the output canvas.
-			DOM.mainCanvas_ctx.drawImage(DOM.preMainCanvas, 0, 0);
-
-			// Update the displayed controls.
-			FUNCS.updateDisplayedControls();           //
-
-			// Schedule next animation frame.
-			// GAMEVARS.raf_id = window.requestAnimationFrame(FUNCS.gameloop);
+			// GAMEVARS.gamestate_main="";
+			// GAMEVARS.gamestate_sub="gameover";
 		}
 		else{
 			setTimeout(function(){
@@ -851,6 +953,73 @@ let FUNCS = {
 			}, 1000);
 		}
 
+	},
+
+	// MAIN GAMESTATES
+	gamestate_main_title1 : function(){
+		// console.log("gamestate_main_title1");
+	},
+	gamestate_main_title2 : function(){
+		// console.log("gamestate_main_title2");
+	},
+	gamestate_main_playing : function(){
+		// console.log("gamestate_main_playing");
+
+		switch(GAMEVARS.gamestate_sub){
+			case "gameover"  : { FUNCS.gamestate_sub_gameover(); break; }
+			case "playing"   : { FUNCS.gamestate_sub_playing(); break; }
+			// case "gameover"  : { FUNCS.gamestate_sub_gameover(); break; }
+			// case "gameover"  : { FUNCS.gamestate_sub_gameover(); break; }
+			// case "gameover"  : { FUNCS.gamestate_sub_gameover(); break; }
+			default  : { console.log("INVALID GAMESTATE_SUB:", GAMEVARS.gamestate_sub); break; }
+		}
+
+	},
+
+	// SUB GAMESTATES
+	gamestate_sub_playing : function(){
+		// console.log("gamestate_sub_playing");
+		// document.getElementById("debug_calcFPS").innerText = LOADER.fps.value;
+
+		// CLEAN-UP.
+		FUNCS.clearCanvas();            // Clear the precanvas for a new frame.
+		FUNCS.removeExpired();          // Shots, hits
+		FUNCS.drawLines();              //
+
+		// ANIMATIONS
+		FUNCS.handleHits();       //
+
+		// POSITIONS
+		FUNCS.updateBarrierPositions();  //
+		FUNCS.updatePlayerPositions();  //
+		FUNCS.updateShipsPositions();   //
+		FUNCS.updateInvaderPositions(); //
+		FUNCS.updateShotsPositions();   //
+
+		// SHOTS
+		FUNCS.addInvaderShots();        //
+		FUNCS.addShipShots();           //
+
+		// Update the debug data.
+		if(DEBUGMODE && DEBUG.DOM.chk_debug.checked){
+			window.requestAnimationFrame(DEBUG.updateDebugData);
+		}
+
+		// Update the output canvas.
+		DOM.mainCanvas_ctx.drawImage(DOM.preMainCanvas, 0, 0);
+
+		// Update the displayed controls.
+		FUNCS.updateDisplayedControls();           //
+	},
+	gamestate_sub_gameover : function(){
+		// console.log("gamestate_sub_gameover");
+
+		// Cancel the current animation frame.
+		if(GAMEVARS.raf_id != null){
+			window.cancelAnimationFrame(GAMEVARS.raf_id);
+		}
+		GAMEVARS.raf_id = null;
+		// throw "GAME OVER";
 	},
 };
 
@@ -1036,7 +1205,7 @@ let LOADER = {
 								// If the audio is ready then start the game.
 								if(GAMEVARS.audiocanplay){
 									// Reset game vars.
-									GAMEVARS.reset_game_consts();
+									// GAMEVARS.reset_game_consts();
 
 									//
 									FUNCS.startGameFromBeginning();
@@ -1134,7 +1303,8 @@ let LOADER = {
 	},
 
 	//
-	loadGraphics                     : function(){
+
+	loadGraphics                    : function(){
 		return new Promise(function(resolve,reject){
 			let sprite_coords = {
 				// Invaders
@@ -1177,56 +1347,51 @@ let LOADER = {
 			};
 
 			// Holds the sprite sheet image.
-			let images = new Image();
-			images.onload=function(){
-				// Clear the onload function (only needed once.)
-				images.onload=null;
+			let images = document.getElementById("src_images") ;
 
-				// Create a temp canvas for our image and draw to it.
-				let canvas = document.createElement("canvas");
-				canvas.width  = images.width;
-				canvas.height = images.height;
+			// Create a temp canvas for our image and draw to it.
+			let canvas = document.createElement("canvas");
+			canvas.width  = images.width;
+			canvas.height = images.height;
 
-				// Disable dithering / anti-aliasing.
-				LOADER.setpixelated(canvas);
+			// Disable dithering / anti-aliasing.
+			LOADER.setpixelated(canvas);
 
-				// Get canvas context.
-				let context = canvas.getContext('2d');
+			// Get canvas context.
+			let context = canvas.getContext('2d');
 
-				// Draw the image to the temp canvas.
-				context.drawImage(images, 0, 0);
+			// Draw the image to the temp canvas.
+			context.drawImage(images, 0, 0);
 
-				// Go through sprite_coords and create a cache of individual images of the canvas.
-				for(let key1 in sprite_coords){
-					// Create initial empty array.
-					IMGCACHE[key1] = [];
+			// Go through sprite_coords and create a cache of individual images of the canvas.
+			for(let key1 in sprite_coords){
+				// Create initial empty array.
+				IMGCACHE[key1] = [];
 
-					for(let rec of sprite_coords[key1]){
-						let tmp_canvas = document.createElement("canvas");
-						tmp_canvas.width  = rec.nW;
-						tmp_canvas.height = rec.nH;
-						LOADER.setpixelated(tmp_canvas);
-						let tmp_context = tmp_canvas.getContext('2d');
+				for(let rec of sprite_coords[key1]){
+					let tmp_canvas = document.createElement("canvas");
+					tmp_canvas.width  = rec.nW;
+					tmp_canvas.height = rec.nH;
+					LOADER.setpixelated(tmp_canvas);
+					let tmp_context = tmp_canvas.getContext('2d');
 
-						let sx      = rec.x ;
-						let sy      = rec.y ;
-						let sWidth  = rec.w ;
-						let sHeight = rec.h ;
-						let dx      = 0 ;
-						let dy      = 0 ;
-						let dWidth  = Math.ceil(rec.nW) ;
-						let dHeight = Math.ceil(rec.nH) ;
+					let sx      = rec.x ;
+					let sy      = rec.y ;
+					let sWidth  = rec.w ;
+					let sHeight = rec.h ;
+					let dx      = 0 ;
+					let dy      = 0 ;
+					let dWidth  = Math.ceil(rec.nW) ;
+					let dHeight = Math.ceil(rec.nH) ;
 
-						tmp_context.drawImage(images, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
+					tmp_context.drawImage(images, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
 
-						// console.log(key2);
-						IMGCACHE[key1].push( tmp_canvas );
-					}
+					// console.log(key2);
+					IMGCACHE[key1].push( tmp_canvas );
 				}
+			}
 
-				resolve();
-			};
-			images.src = 'images/invaders_2_.png';
+			resolve();
 		});
 	},
 
@@ -1291,6 +1456,9 @@ let LOADER = {
 		DOM.requestUserInteraction.classList.add("hidden");
 
 		GAMEVARS.audiocanplay=true;
+
+		// Reset game vars.
+		// GAMEVARS.reset_game_consts();
 
 		//
 		FUNCS.startGameFromBeginning();
@@ -2015,6 +2183,10 @@ function Invader(x, y, type){
 	this.draw            = function(){
 		// Get the source image.
 		let img = IMGCACHE[this.imgCacheKey][this.framenum];
+
+		//
+		DOM.preMainCanvas_ctx.fillStyle = "#770077";
+		DOM.preMainCanvas_ctx.fillRect(this.x, this.y, img.width, img.height);
 
 		// Draw the entity at the current coordinates.
 		DOM.preMainCanvas_ctx.drawImage(img, this.x, this.y);

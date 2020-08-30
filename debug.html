@@ -17,6 +17,7 @@
 			<input class="debugButton1" type="button" onclick="FUNCS.pause();" value="FUNCS.pause();">
 			<input class="debugButton1" type="button" onclick="FUNCS.startGameFromBeginning();" value="RESET">
 			<input class="debugButton1" type="button" onclick="FUNCS.demoEntities();" value="DEMO ENTITIES">
+			<input class="debugButton1" type="button" onclick="DEBUG.updateDebugData();" value="updateDebugData">
 			<br>
 
 			<input class="debugButton1" type="button" onclick="DEBUG.lowerInvaders();" value="LOWER INVADERS">
@@ -25,8 +26,8 @@
 			<input class="debugButton1" type="button" onclick="DEBUG.removeLastInvader();" value="removeLastInvader">
 			<br>
 
-			<input class="debugButton1" type="button" onclick="GAMEVARS.gameover_bottom-=1;" value="gameover_bottom -=1">
-			<input class="debugButton1" type="button" onclick="GAMEVARS.gameover_bottom+=1;" value="gameover_bottom +=1">
+			<input class="debugButton1" type="button" onclick="GAMEVARS.gameover_bottom-=1;DEBUG.updateDebugData();" value="gameover_bottom -=1">
+			<input class="debugButton1" type="button" onclick="GAMEVARS.gameover_bottom+=1;DEBUG.updateDebugData();" value="gameover_bottom +=1">
 			<input class="debugButton1" type="button" onclick="GAMEVARS.barrier_top-=1;" value="barrier_top -=1">
 			<input class="debugButton1" type="button" onclick="GAMEVARS.barrier_top+=1;" value="barrier_top +=1">
 			<br>

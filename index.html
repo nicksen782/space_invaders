@@ -1,8 +1,6 @@
 <!doctype html>
 <html lang="en">
 
-<?php $debugIsOn=isset($_GET['debug']) ? true : false ; ?>
-
 <head>
 	<!--https://github.com/maxwihlborg/youtube-tutorials/blob/master/pong/index.html-->
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -15,39 +13,25 @@
 
 	<title>Space Invaders v4</title>
 
-	<!-- Record the debug flag. -->
-	<?php
-		// Determine if the debug flag is set and create a value for it in JavaScript.
-		echo "<script>let DEBUGMODE=" . ($debugIsOn ? "true" : "false") . ";</script>\n";
-	?>
-
 	<!-- GAME JAVASCRIPT -->
 	<script type="text/javascript" src="game.js"></script>
 
 	<!-- GAME CSS -->
 	<link rel="stylesheet" type="text/css" href="game.css">
 
-	<?php
-		// Determine if the debug flag is set and create a value for it in JavaScript.
-		if($debugIsOn){
-			echo "<!-- DEBUG JAVASCRIPT -->\n";
-			echo "\t<script type='text/javascript' src='debug.js'></script>" ."\n";
-			echo "\n";
-
-			echo "\t";
-			echo "<!-- DEBUG CSS -->\n";
-			echo "\t<link rel='stylesheet' type='text/css' href='debug.css'>" ."\n";
-		}
-	?>
-
 </head>
 
 <body>
 	<!--  -->
+	<div id="hiddenDiv">
+		<img id="src_images" src="images/invaders_2_.png" alt="images/invaders_2_.png">
+	</div>
+
+	<!--  -->
 	<div id="entireBodyDiv"></div>
 
 	<!-- MAIN DISPLAY -->
-	<div id="mainDisplay" class=" <?php echo $debugIsOn ? "inlineBlock" : ""?>">
+	<div id="mainDisplay" class="">
 
 		<!-- GAME DIV -->
 		<div id="game" class="borderRadius1">
@@ -113,9 +97,9 @@
 						<br>
 
 						<div id="menu_player_size_div">
-							<canvas id="menu_player_size_normal" onclick='GAMEVARS.PLAYERS[0].imgCacheKey="player"       ; LOADER.toggleMenu();'></canvas>
-							<canvas id="menu_player_size_large"  onclick='GAMEVARS.PLAYERS[0].imgCacheKey="player_large" ; LOADER.toggleMenu();'></canvas>
-							<canvas id="menu_player_size_larger" onclick='GAMEVARS.PLAYERS[0].imgCacheKey="player_larger"; LOADER.toggleMenu();'></canvas>
+						<canvas id="menu_player_size_normal" onclick='if(GAMEVARS.PLAYERS[0]){ GAMEVARS.PLAYERS[0].imgCacheKey="player"       ; LOADER.toggleMenu(); }'></canvas>
+						<canvas id="menu_player_size_large"  onclick='if(GAMEVARS.PLAYERS[0]){ GAMEVARS.PLAYERS[0].imgCacheKey="player_large" ; LOADER.toggleMenu(); }'></canvas>
+						<canvas id="menu_player_size_larger" onclick='if(GAMEVARS.PLAYERS[0]){ GAMEVARS.PLAYERS[0].imgCacheKey="player_larger"; LOADER.toggleMenu(); }'></canvas>
 						</div>
 
 					</div>
@@ -123,15 +107,12 @@
 
 			</div>
 
-			<!-- <div id="debug_calcFPS">--&nbsp;</div> -->
 		</div>
 
 	</div>
-	<?php
-		// Include the DIV code if the $debugIsOn flag is set.
-		if($debugIsOn){ echo "\n"; require_once "debug.php"; }
-		else          { echo "\t<!-- DEBUG IS OFF -->\n";    }
-	?>
+
+	<div id="debug_content"></div>
+
 </body>
 
 </html>

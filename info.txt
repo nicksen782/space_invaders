@@ -12,17 +12,6 @@
 | -- DONE: -- |
 \*************/
 
-* Joystick/button graphic updates.
-* The on-screen joysticks now work. Supports mouse and touch.
-* - Keyboard input will adjust the display of the on-screen joysticks/buttons.
-* Debug screen updates are now using a configurable interval setting.
-* Additional info added on the DEBUG screen for the joysticks/buttons.
-* Currently hiding player 2 from the game and inputs for player 2 as well.
-* - Need to figure out joystick/buttons positioning for multiple players.
-* updateDisplayedControls has been re-written to use for loops.
-* Added a FPS calculator feature into LOADER.
-* Joysticks/buttons now have their own setup function, setupInput.
-
 ============================
 
 http://spaceinvaders.wikia.com/wiki/Space_Invaders_(Atari_2600)
