@@ -1,0 +1,97 @@
+#! /bin/sh
+
+CREATEDOCKER=0
+if [ "$1" = "DOCKER" ]; then CREATEDOCKER=1; fi
+
+BRANCHNAME=$2
+
+####################################################################################################
+# DIRECTIONS: Make a new folder for everything then run this script from that folder.
+# You will need to rename the script to install.sh and do chmod +x install.sh on it.
+# The script renames itself afterwards.
+# The rest is handled automatically.
+# This will create the base directory structure and do a git clone of space_invaders.
+#
+# Arguments:
+# First : HOW TO INSTALL: LOCAL or DOCKER. LOCAL is default if not specified. DOCKER will create a Docker container.
+# Second: BRANCH TO USE : master is the default if not specified.
+#
+# If you just want to install directly from the Github repo you can use one of these commmands:
+# With wget:
+#   wget -O -  https://raw.githubusercontent.com/nicksen782/space_invaders/master/_install.txt | bash -s LOCAL
+#   wget -O -  https://raw.githubusercontent.com/nicksen782/space_invaders/master/_install.txt | bash -s LOCAL dev
+#   wget -O -  https://raw.githubusercontent.com/nicksen782/space_invaders/master/_install.txt | bash -s DOCKER
+#   wget -O -  https://raw.githubusercontent.com/nicksen782/space_invaders/master/_install.txt | bash -s DOCKER dev
+#   wget -O -  https://raw.githubusercontent.com/nicksen782/space_invaders/V4/_install.txt     | bash -s DOCKER V4
+#
+# With curl:
+#   curl -s -L https://raw.githubusercontent.com/nicksen782/space_invaders/master/_install.txt | bash -s LOCAL
+#   curl -s -L https://raw.githubusercontent.com/nicksen782/space_invaders/master/_install.txt | bash -s LOCAL dev
+#   curl -s -L https://raw.githubusercontent.com/nicksen782/space_invaders/master/_install.txt | bash -s DOCKER
+#   curl -s -L https://raw.githubusercontent.com/nicksen782/space_invaders/master/_install.txt | bash -s DOCKER dev
+####################################################################################################
+
+# Make the directory structure.
+# if [ ! -f "APP" ]          ; then mkdir APP          ; fi
+
+# Enter the APP directory and then clone.
+# cd APP || return
+git clone git@github.com:nicksen782/space_invaders.git space_invaders
+cd space_invaders
+
+# Fix the git configs.
+git config --local core.fileMode false
+
+# Switch to a different branch?
+if [ -z "$BRANCHNAME" ]
+	then
+		echo "Using the master branch."
+	else
+		echo "Using the $BRANCHNAME branch."
+		git checkout $BRANCHNAME
+fi
+
+# Set permissions
+# cd ..
+find . '(' -type f -exec chmod 666 {} ';' ')' -o '(' -type d -exec chmod 777 {} ';' ')'
+# cd space_invaders
+
+##########################
+# DOCKER SECTION - START #
+##########################
+
+if [ $CREATEDOCKER -eq 1 ]
+then
+	# cd space_invaders || return
+	cd DOCKER_BUILD || return
+	chmod +x 00A_buildCreateStart.sh
+	chmod +x 00B_stopRemoveAll.sh
+	chmod +x 00C_stopRemoveContainer.sh
+	chmod +x 01_build.sh
+	chmod +x 02_create.sh
+	chmod +x 03_start.sh
+	chmod +x 04_stop.sh
+	chmod +x 05_removeContainer.sh
+	chmod +x 06_removeImage.sh
+
+	# Stop existing container.
+	./04_stop.sh
+
+	# Remove existing container.
+	./05_removeContainer.sh
+
+	# Build the Docker container.
+	./00A_buildCreateStart.sh
+
+	cd ..
+	cd ..
+
+	echo
+	echo "You can access via URL: http://127.0.0.1:8080/"
+	echo
+fi
+
+##########################
+# DOCKER SECTION - END   #
+##########################
+
